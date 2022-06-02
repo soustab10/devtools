@@ -3,6 +3,8 @@ import { AddCommentButton } from "components";
 import React, { Dispatch, SetStateAction, useRef, useEffect } from "react";
 import "reactjs-popup/dist/index.css";
 import { connect, ConnectedProps } from "react-redux";
+
+import { LocationAnalysisPoints } from "devtools/client/debugger/src/reducers/breakpoints";
 import { actions } from "ui/actions";
 import MaterialIcon from "ui/components/shared/MaterialIcon";
 import hooks from "ui/hooks";
@@ -18,12 +20,12 @@ import Condition from "./Condition";
 import Log from "./Log";
 import Popup from "./Popup";
 
-const { prefs } = require("ui/utils/prefs");
+import { prefs } from "ui/utils/prefs";
 
 export type Input = "condition" | "logValue";
 
 type PanelSummaryProps = PropsFromRedux & {
-  analysisPoints?: AnalysisPayload;
+  analysisPoints?: LocationAnalysisPoints;
   breakpoint: any;
   executionPoint: any;
   isHot: boolean;
