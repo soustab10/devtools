@@ -18,15 +18,25 @@ import { PanelStatus } from "./PanelStatus";
 
 import { trackEvent } from "ui/utils/telemetry";
 import { Breakpoint } from "../../../reducers/types";
-const mapStateToProps = (state: UIState, { breakpoint }: { breakpoint: Breakpoint }) => ({
-  analysisPoints: getAnalysisPointsForLocation(
+const mapStateToProps = (state: UIState, { breakpoint }: { breakpoint: Breakpoint }) => {
+  const analysisPoints = getAnalysisPointsForLocation(
     state,
     // @ts-ignore Location / SourceLocation mismatch
     breakpoint.location,
     breakpoint.options.condition
-  ),
-  executionPoint: selectors.getExecutionPoint(state),
-});
+  );
+  console.log(
+    "Analysis points for: ",
+    breakpoint.location,
+    breakpoint.options.condition,
+    ": ",
+    analysisPoints
+  );
+  return {
+    analysisPoints,
+    executionPoint: selectors.getExecutionPoint(state),
+  };
+};
 
 const connector = connect(mapStateToProps, {
   seek: actions.seek,
@@ -55,6 +65,7 @@ function BreakpointNavigation({
       seek(point.point, point.time, true);
     }
   };
+  console.log("Analysis points for breakpoint: ", analysisPoints);
   const points = analysisPoints?.data || [];
   const error = analysisPoints?.error;
   const isEmpty = error || points.length === 0;

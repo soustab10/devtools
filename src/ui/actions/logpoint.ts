@@ -329,7 +329,7 @@ async function setMultiSourceLogpoint(
           })
         );
 
-        removeLogpoint(logGroupId);
+        // removeLogpoint(logGroupId);
         return;
       }
 
@@ -342,7 +342,7 @@ async function setMultiSourceLogpoint(
 
       showLogpointsResult(logGroupId, results);
     } else {
-      removeLogpoint(logGroupId);
+      // removeLogpoint(logGroupId);
     }
 
     // MAYBE

@@ -457,16 +457,30 @@ export const getAnalysisPointsForLocation = createSelector(
       }
     });
 
-    if (matchingEntries.length === 0) {
-      // We have no hits available
-      return undefined;
+    let finalPoints: PointDescription[] = [];
+
+    if (matchingEntries.length > 0) {
+      // const allPoints = matchingEntries.map(entry => entry.points!).flat();
+      const pointsPerEntry = matchingEntries.map(entry => {
+        const { points = [], results = [] } = entry;
+        if (condition && entry.status === AnalysisStatus.Completed) {
+          // Currently the backend does not filter returned points by condition, only analysis results.
+          // If there _is_ a condition, _and_ we have results back, we should filter the total points
+          // based on the analysis results.
+          const resultPointsSet = new Set<string>(results.map(result => result.key));
+          const filteredConditionPoints = points.filter(point => resultPointsSet.has(point.point));
+          return filteredConditionPoints;
+        }
+
+        return points;
+      });
+      const flattenedPoints = pointsPerEntry.flat();
+      const uniquePoints = uniqBy(flattenedPoints, item => item.point);
+      uniquePoints.sort((a, b) => compareNumericStrings(a.point, b.point));
+
+      // TODO `filterToFocusRegion` wants a pre-sorted array, but maybe a bit cheaper to filter first _then_ sort?
+      finalPoints = focusRegion ? filterToFocusRegion(uniquePoints, focusRegion) : uniquePoints;
     }
-
-    const allPoints = matchingEntries.map(entry => entry.points!).flat();
-    const uniquePoints = uniqBy(allPoints, item => item.point);
-    uniquePoints.sort((a, b) => compareNumericStrings(a.point, b.point));
-
-    const finalPoints = focusRegion ? filterToFocusRegion(uniquePoints, focusRegion) : uniquePoints;
 
     // Meanwhile, we're going to use the _latest_ analysis run's status
     // for display purposes.
