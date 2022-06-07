@@ -48,7 +48,7 @@ export enum AnalysisStatus {
   ErroredRunning = "ErroredRunning",
 }
 
-export type AnalysisSummary = {
+export type AnalysisRequest = {
   error: AnalysisError | undefined;
   id: string;
   location: Location;
@@ -65,6 +65,13 @@ export type BreakpointAnalysisMapping = {
   allAnalyses: string[];
 };
 
+export type LocationAnalysisSummary = {
+  data: PointDescription[];
+  error: AnalysisError | undefined;
+  status: AnalysisStatus;
+  condition?: string;
+};
+
 export interface BreakpointsState {
   /**
    * Actual breakpoint entries, keyed by a location string
@@ -78,14 +85,14 @@ export interface BreakpointsState {
   /**
    * Analysis entries associated with breakpoints, keyed by GUID.
    */
-  analyses: EntityState<AnalysisSummary>;
+  analyses: EntityState<AnalysisRequest>;
   /**
    * Maps between a location string and analysis IDs for that location
    */
   analysisMappings: EntityState<BreakpointAnalysisMapping>;
 }
 
-const analysesAdapter = createEntityAdapter<AnalysisSummary>();
+const analysesAdapter = createEntityAdapter<AnalysisRequest>();
 const mappingsAdapter = createEntityAdapter<BreakpointAnalysisMapping>({
   selectId: entry => entry.locationId,
 });
@@ -382,17 +389,17 @@ export function getLogpointsForSource(state: UIState, sourceId: string) {
   return breakpoints.filter(bp => bp.location.sourceId === sourceId).filter(bp => isLogpoint(bp));
 }
 
-export type LocationAnalysisPoints = {
-  data: PointDescription[];
-  error: AnalysisError | undefined;
-};
-
 const customAnalysisResultComparator = (
-  a: LocationAnalysisPoints | undefined,
-  b: LocationAnalysisPoints | undefined
+  a: LocationAnalysisSummary | undefined,
+  b: LocationAnalysisSummary | undefined
 ) => {
-  const d1 = a?.data ?? [];
-  const d2 = b?.data ?? [];
+  if (!a && !b) {
+    return true;
+  } else if (!a || !b) {
+    return false;
+  }
+  const d1 = a.data;
+  const d2 = b.data;
 
   let dataEqual =
     d1.length === d2.length &&
@@ -402,8 +409,10 @@ const customAnalysisResultComparator = (
       const timeEqual = item.time === otherItem.time;
       return pointEqual && timeEqual;
     });
-  const errorEqual = a?.error === b?.error;
-  const result = dataEqual && errorEqual;
+
+  const errorEqual = a.error === b.error;
+  const statusEqual = a.status === b.status;
+  const result = dataEqual && errorEqual && statusEqual;
 
   return result;
 };
@@ -419,16 +428,37 @@ export const getAnalysisPointsForLocation = createSelector(
     },
     (state: UIState) => state.breakpoints.analyses,
     (state: UIState) => state.timeline.focusRegion,
-
+    (state: UIState, location: Location | null, condition: string | null = "") => {
+      if (!location) {
+        return undefined;
+      }
+      const locationKey = getLocationKey(location);
+      return locationKey;
+    },
     (state: UIState, location: Location | null, condition: string | null = "") => condition,
   ],
-  (mappingEntry, analyses, focusRegion, condition): LocationAnalysisPoints | undefined => {
+  (
+    mappingEntry,
+    analyses,
+    focusRegion,
+    locationKey,
+    condition
+  ): LocationAnalysisSummary | undefined => {
+    console.log("Recalculating points for: ", { locationKey, condition });
     // First, verify that we have a real location and a breakpoint mapping for that location
     if (!mappingEntry) {
       return undefined;
     }
 
-    const matchingEntries: AnalysisSummary[] = [];
+    // We're going to use the _latest_ analysis run's status
+    // for display purposes.
+    const latestAnalysisEntry = analyses.entities[mappingEntry.currentAnalysis!];
+
+    if (!latestAnalysisEntry) {
+      return undefined;
+    }
+
+    const matchingEntries: AnalysisRequest[] = [];
 
     // Next, filter down all analysis runs for this location, based on matching
     // against the `condition` the user supplied, as well as whether we
@@ -482,22 +512,21 @@ export const getAnalysisPointsForLocation = createSelector(
       finalPoints = focusRegion ? filterToFocusRegion(uniquePoints, focusRegion) : uniquePoints;
     }
 
-    // Meanwhile, we're going to use the _latest_ analysis run's status
-    // for display purposes.
-    const latestAnalysisEntry = analyses.entities[mappingEntry.currentAnalysis!];
-
+    console.log("Latest analysis entry: ", latestAnalysisEntry);
     // TODO What's a good default here?
     let error: AnalysisError | undefined = latestAnalysisEntry?.error;
 
     return {
       data: finalPoints,
       error,
+      status: latestAnalysisEntry.status,
+      condition: latestAnalysisEntry.condition,
     };
   },
   {
     memoizeOptions: {
       // Comparison for each individual input argument / extracted value
-      equalityCheck: shallowEqual,
+      // equalityCheck: shallowEqual,
       // Arbitrary number for cache size
       maxSize: 100,
       // Reuse old result if contents are the same

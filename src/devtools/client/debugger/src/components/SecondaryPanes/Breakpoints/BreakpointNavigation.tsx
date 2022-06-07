@@ -25,6 +25,7 @@ const mapStateToProps = (state: UIState, { breakpoint }: { breakpoint: Breakpoin
     breakpoint.location,
     breakpoint.options.condition
   );
+  /*
   console.log(
     "Analysis points for: ",
     breakpoint.location,
@@ -32,6 +33,7 @@ const mapStateToProps = (state: UIState, { breakpoint }: { breakpoint: Breakpoin
     ": ",
     analysisPoints
   );
+  */
   return {
     analysisPoints,
     executionPoint: selectors.getExecutionPoint(state),
