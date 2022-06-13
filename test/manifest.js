@@ -310,6 +310,7 @@ module.exports = [
     example: "doc_rr_worker.html",
     script: "worker-01.js",
     targets: ["gecko", "chromium"],
+    disabled: true,
   },
   {
     example: "cra/dist/index.html",
