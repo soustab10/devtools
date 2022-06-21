@@ -2,6 +2,10 @@ name: Run test suites
 on:
   pull_request:
   workflow_dispatch:
+    inputs:
+      do-not-record:
+        type: boolean
+        description: Do not record tests
   push:
     branches:
       - main
@@ -79,6 +83,8 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/download-artifact@v2
       - uses: ./.github/actions/test
+        with:
+          do-not-record: ${{ github.event.inputs.do-not-record && '1' || '' }}
         env:
           TEST_RUN_ID: ${{ needs.generate-test-run-id.outputs.testRunId }}
           PLAYWRIGHT_TEST_BASE_URL: ${{ needs.preview-branch.outputs.url }}
@@ -92,6 +98,8 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/download-artifact@v2
       - uses: ./.github/actions/test
+        with:
+          do-not-record: ${{ github.event.inputs.do-not-record && '1' || '' }}
         env:
           TEST_RUN_ID: ${{ needs.generate-test-run-id.outputs.testRunId }}
           PLAYWRIGHT_TEST_BASE_URL: ${{ needs.preview-branch.outputs.url }}
@@ -105,6 +113,8 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/download-artifact@v2
       - uses: ./.github/actions/test
+        with:
+          do-not-record: ${{ github.event.inputs.do-not-record && '1' || '' }}
         env:
           TEST_RUN_ID: ${{ needs.generate-test-run-id.outputs.testRunId }}
           PLAYWRIGHT_TEST_BASE_URL: ${{ needs.preview-branch.outputs.url }}
@@ -118,6 +128,8 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/download-artifact@v2
       - uses: ./.github/actions/test
+        with:
+          do-not-record: ${{ github.event.inputs.do-not-record && '1' || '' }}
         env:
           TEST_RUN_ID: ${{ needs.generate-test-run-id.outputs.testRunId }}
           PLAYWRIGHT_TEST_BASE_URL: ${{ needs.preview-branch.outputs.url }}
@@ -131,6 +143,8 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/download-artifact@v2
       - uses: ./.github/actions/test
+        with:
+          do-not-record: ${{ github.event.inputs.do-not-record && '1' || '' }}
         env:
           TEST_RUN_ID: ${{ needs.generate-test-run-id.outputs.testRunId }}
           PLAYWRIGHT_TEST_BASE_URL: ${{ needs.preview-branch.outputs.url }}
