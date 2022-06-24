@@ -114,7 +114,7 @@ function LineHitCounts({ editor, isCollapsed, setIsCollapsed }: Props) {
 
         const markerNode = document.createElement("div");
         markerNode.onclick = () => setIsCollapsed(!isCollapsed);
-        markerNode.className = className;
+        markerNode.className = `${className} hit-counts`;
         if (!isCollapsed && hitCount > 0) {
           markerNode.textContent =
             hitCount < 1000 ? `${hitCount}` : `${(hitCount / 1000).toFixed(1)}k`;

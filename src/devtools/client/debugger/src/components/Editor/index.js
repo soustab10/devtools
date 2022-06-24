@@ -244,11 +244,12 @@ class Editor extends PureComponent {
       return;
     }
 
-    if (target.classList.contains("CodeMirror-linenumber")) {
-      return;
-    }
-
-    if (target.getAttribute("id") === "columnmarker") {
+    console.log(target.classList);
+    if (
+      target.classList.contains(".hit-counts") ||
+      target.classList.contains("CodeMirror-linenumber") ||
+      target.getAttribute("id") === "columnmarker"
+    ) {
       return;
     }
 
@@ -260,11 +261,11 @@ class Editor extends PureComponent {
   };
 
   onGutterClick = (cm, line, gutter, ev) => {
-    const { cx, selectedSource, addBreakpointAtLine, toggleBlackBox } = this.props;
+    const { cx, selectedSource, addBreakpointAtLine } = this.props;
     const sourceLocation = getSourceLocationFromMouseEvent(this.state.editor, selectedSource, ev);
 
     // Open the context menu then bail if the user clicks on a non-breakable line
-    if (ev.target.closest(".empty-line")) {
+    if (ev.target.closest(".empty-line") && ev.button === 2) {
       // I am pretty morally opposed to this code, but without it codemirror
       // breaks in a myriad of ways.
       setTimeout(() => {
@@ -281,33 +282,26 @@ class Editor extends PureComponent {
       return;
     }
 
-    // ignore right clicks in the gutter
-    if ((ev.ctrlKey && ev.button === 0) || ev.button === 2 || !selectedSource) {
+    // 1. Don't add a breakpoint if the user clicked on something other than the gutter line number,
+    // e.g., the blank gutter space caused by adding a CodeMirror widget.
+    // 2. ignore right clicks in the gutter
+    const isLineNumber = [...ev.target.classList].includes("CodeMirror-linenumber");
+    if (!isLineNumber || (ev.ctrlKey && ev.button === 0) || ev.button === 2 || !selectedSource) {
       return;
-    }
-
-    // if user clicks gutter to set breakpoint on blackboxed source, un-blackbox the source.
-    if (selectedSource && selectedSource.isBlackBoxed) {
-      toggleBlackBox(cx, selectedSource);
     }
 
     if (typeof line !== "number") {
       return;
     }
-
     const sourceLine = fromEditorLine(line);
-
-    // Don't add a breakpoint if the user clicked on something other than the gutter line number,
-    // e.g., the blank gutter space caused by adding a CodeMirror widget.
-    if (![...ev.target.classList].includes("CodeMirror-linenumber")) {
-      return;
-    }
-
     return addBreakpointAtLine(cx, sourceLine);
   };
 
   onGutterContextMenu = event => {
-    return this.openMenu(event);
+    console.log("gutter context menu");
+    if (!event.target.classList.contains(".hit-counts")) {
+      return this.openMenu(event);
+    }
   };
 
   onClick(e) {
