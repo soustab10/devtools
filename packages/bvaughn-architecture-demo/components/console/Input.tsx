@@ -1,38 +1,89 @@
+import { LexicalComposer } from "@lexical/react/LexicalComposer";
+import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
+import { PlainTextPlugin } from "@lexical/react/LexicalPlainTextPlugin";
+import { ContentEditable } from "@lexical/react/LexicalContentEditable";
+import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
+import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 import { useContext, useEffect, useRef } from "react";
 
 import Icon from "../Icon";
 
+import { TypeaheadNode } from "./lexical/TypeaheadNode";
+import TypeaheadPlugin from "./lexical/TypeaheadPlugin";
 import styles from "./Input.module.css";
 import { SearchContext } from "./SearchContext";
 
+const lexicalConfig = {
+  namespace: "ConsoleInput",
+  nodes: [TypeaheadNode],
+  onError: (...args: any[]) => {
+    console.log("Lexical::onError", ...args);
+  },
+  theme: {},
+};
+
 export default function Input({ className }: { className: string }) {
-  const [searchState, searchActions] = useContext(SearchContext);
+  const [_, searchActions] = useContext(SearchContext);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  // TODO Make terminal work
+  // TODO Add auto-suggestions
+  // TODO Add eager eval foot preview
 
-  const ref = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "f" && event.metaKey) {
+        event.preventDefault();
+
+        searchActions.show();
+      }
+    };
+
+    const container = containerRef.current!;
+    container.addEventListener("keydown", onKeyDown, true);
+    return () => {
+      container.removeEventListener("keydown", onKeyDown, true);
+    };
+  }, [searchActions]);
+
+  const onChange = (...args: any[]) => {
+    // console.log("Lexical::onChange", ...args);
+  };
+
+  // TODO Only render TypeaheadPlugin when there is a current pause
+
+  return (
+    <div className={`${styles.Input} ${className}`}>
+      <Icon className={styles.Icon} type="prompt" />
+
+      <LexicalComposer initialConfig={lexicalConfig}>
+        <div ref={containerRef} className={styles.LexicalContainer}>
+          <PlainTextPlugin
+            contentEditable={<ContentEditable className={styles.LexicalContentEditable} />}
+            placeholder=""
+          />
+          <OnChangePlugin onChange={onChange} />
+          <HistoryPlugin />
+          <TypeaheadPlugin />
+          <CustomAutoFocusPlugin />
+        </div>
+      </LexicalComposer>
+    </div>
+  );
+}
+
+function CustomAutoFocusPlugin() {
+  const [editor] = useLexicalComposerContext();
+  const [searchState] = useContext(SearchContext);
   const searchStateVisibleRef = useRef(false);
 
   useEffect(() => {
+    console.log(editor);
     if (!searchState.visible && searchStateVisibleRef.current) {
-      ref?.current?.focus();
+      editor?.focus();
     }
 
     searchStateVisibleRef.current = searchState.visible;
-  }, [searchState.visible]);
+  }, [editor, searchState.visible]);
 
-  const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === "f" && event.metaKey) {
-      event.preventDefault();
-
-      searchActions.show();
-    }
-  };
-
-  return (
-    <div className={`${styles.Container} ${className}`}>
-      <Icon className={styles.Icon} type="prompt" />
-      <input ref={ref} className={styles.Input} onKeyDown={onKeyDown} type="text" />
-    </div>
-  );
+  return null;
 }

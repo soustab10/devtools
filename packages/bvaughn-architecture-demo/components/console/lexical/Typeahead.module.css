@@ -1,0 +1,31 @@
+.Typeahead {
+  position: fixed;
+  display: flex;
+  align-items: flex-end;
+  width: 0;
+  height: 0;
+}
+
+.TypeaheadList {
+  background-color: var(--background-color-default);
+  border: 1px solid var(--background-color-contrast-3);
+  border-radius: 0.25rem;
+
+  font-family: Menlo, Consolas, monospace;
+  font-size: 14px;
+
+  list-style: none;
+  margin: 0.25rem;
+  padding: 0;
+}
+
+.TypeaheadListItem,
+.TypeaheadListItemSelected {
+  list-style-type: none;
+  margin: 0;
+  padding: 0.25rem 0.5rem;
+}
+
+.TypeaheadListItemSelected {
+  background-color: var(--background-color-contrast-1);
+}
