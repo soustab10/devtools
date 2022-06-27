@@ -37,9 +37,7 @@ export default function useTypeahead(
       const match = /([^\s]+)$/.exec(text);
       if (match) {
         const token = match[0];
-        console.log(`useTypeahead() token: "${token}"`);
-
-        const isRangePositioned = tryToPositionRange(range);
+        const isRangePositioned = tryToPositionRange(range, match.index);
         if (isRangePositioned !== null) {
           startTransition(() => setResolution({ range, token }));
           return;

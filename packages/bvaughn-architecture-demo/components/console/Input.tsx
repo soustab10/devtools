@@ -17,7 +17,7 @@ const lexicalConfig = {
   namespace: "ConsoleInput",
   nodes: [TypeaheadNode],
   onError: (...args: any[]) => {
-    console.log("Lexical::onError", ...args);
+    console.error("Lexical::onError", ...args);
   },
   theme: {},
 };
@@ -77,7 +77,6 @@ function CustomAutoFocusPlugin() {
   const searchStateVisibleRef = useRef(false);
 
   useEffect(() => {
-    console.log(editor);
     if (!searchState.visible && searchStateVisibleRef.current) {
       editor?.focus();
     }

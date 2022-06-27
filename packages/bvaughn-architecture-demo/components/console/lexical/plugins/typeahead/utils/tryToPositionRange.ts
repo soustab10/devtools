@@ -1,10 +1,9 @@
-export default function tryToPositionRange(range: Range): boolean {
+export default function tryToPositionRange(range: Range, startOffset: number): boolean {
   const domSelection = window.getSelection();
   if (domSelection === null || !domSelection.isCollapsed) {
     return false;
   }
   const anchorNode = domSelection.anchorNode;
-  const startOffset = 0;
   const endOffset = domSelection.anchorOffset;
   try {
     if (anchorNode) {

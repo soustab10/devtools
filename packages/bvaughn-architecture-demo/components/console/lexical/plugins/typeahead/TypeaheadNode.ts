@@ -8,6 +8,7 @@ import {
   TextNode,
 } from "lexical";
 
+import styles from "./TypeaheadNode.module.css";
 import { SerializedTypeaheadNode } from "./types";
 
 function convertTypeaheadElement(domNode: HTMLElement): DOMConversionOutput | null {
@@ -22,8 +23,6 @@ function convertTypeaheadElement(domNode: HTMLElement): DOMConversionOutput | nu
 
   return null;
 }
-
-const mentionStyle = "background-color: rgba(24, 119, 232, 0.2)";
 
 export class TypeaheadNode extends TextNode {
   __mention: string;
@@ -61,9 +60,7 @@ export class TypeaheadNode extends TextNode {
 
   createDOM(config: EditorConfig): HTMLElement {
     const dom = super.createDOM(config);
-    // TODO Use CSS module for this
-    dom.style.cssText = mentionStyle;
-    dom.className = "mention";
+    dom.className = styles.Mention;
     return dom;
   }
 
