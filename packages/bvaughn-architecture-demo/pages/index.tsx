@@ -12,6 +12,7 @@ import Loader from "../components/Loader";
 import { FocusContextRoot } from "../src/contexts/FocusContext";
 
 import styles from "./index.module.css";
+import { PauseContextRoot } from "@bvaughn/src/contexts/PauseContext";
 
 // TODO There's a potential hot loop in this code when an error happens (e.g. Linker too old to support Console.findMessagesInRange)
 // where React keeps quickly retrying after an error is thrown, rather than rendering an error boundary.
@@ -33,23 +34,25 @@ export default function HomePage() {
 
   const content = (
     <Initializer>
-      <FocusContextRoot>
-        <div className={styles.Container}>
-          <div className={styles.CommentsContainer}>
-            <ErrorBoundary>
-              <Suspense fallback={<Loader />}>
-                <CommentList />
-              </Suspense>
-            </ErrorBoundary>
-          </div>
-          <div className={styles.ConsoleContainer}>
-            <ConsoleRoot />
-            <div className={styles.Row}>
-              <Focuser />
+      <PauseContextRoot>
+        <FocusContextRoot>
+          <div className={styles.Container}>
+            <div className={styles.CommentsContainer}>
+              <ErrorBoundary>
+                <Suspense fallback={<Loader />}>
+                  <CommentList />
+                </Suspense>
+              </ErrorBoundary>
+            </div>
+            <div className={styles.ConsoleContainer}>
+              <ConsoleRoot />
+              <div className={styles.Row}>
+                <Focuser />
+              </div>
             </div>
           </div>
-        </div>
-      </FocusContextRoot>
+        </FocusContextRoot>
+      </PauseContextRoot>
     </Initializer>
   );
 

@@ -10,6 +10,7 @@ import {
 } from "../contexts/ConsoleFiltersContext";
 import { FocusContext, FocusContextType } from "../contexts/FocusContext";
 import { SessionContext, SessionContextType } from "../contexts/SessionContext";
+import { PauseContext, PauseContextType } from "../contexts/PauseContext";
 
 // This particular method is written to enable testing the entire client.
 // The only context values it stubs out are the ReplayClient (ReplayClientContext).
@@ -68,6 +69,7 @@ export async function renderFocused(
   options?: {
     consoleFiltersContext?: Partial<ConsoleFiltersContextType>;
     focusContext?: Partial<FocusContextType>;
+    pauseContext?: Partial<PauseContextType>;
     replayClient?: Partial<ReplayClientInterface>;
     sessionContext?: Partial<SessionContextType>;
   }
@@ -100,12 +102,20 @@ export async function renderFocused(
     ...options?.focusContext,
   };
 
+  const pauseContext: PauseContextType = {
+    pauseId: null,
+    update: jest.fn(),
+    ...options?.pauseContext,
+  };
+
   const renderResponse = await render(
-    <FocusContext.Provider value={focusContext}>
-      <ConsoleFiltersContext.Provider value={consoleFiltersContext}>
-        {children}
-      </ConsoleFiltersContext.Provider>
-    </FocusContext.Provider>,
+    <PauseContext.Provider value={pauseContext}>
+      <FocusContext.Provider value={focusContext}>
+        <ConsoleFiltersContext.Provider value={consoleFiltersContext}>
+          {children}
+        </ConsoleFiltersContext.Provider>
+      </FocusContext.Provider>
+    </PauseContext.Provider>,
     {
       replayClient: options?.replayClient,
       sessionContext: options?.sessionContext,
