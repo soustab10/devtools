@@ -8,8 +8,8 @@ import { useContext, useEffect, useRef } from "react";
 
 import Icon from "../Icon";
 
-import { TypeaheadNode } from "./lexical/TypeaheadNode";
-import TypeaheadPlugin from "./lexical/TypeaheadPlugin";
+import { TypeaheadNode } from "./lexical/plugins/typeahead/TypeaheadNode";
+import TypeaheadPlugin from "./lexical/plugins/typeahead";
 import styles from "./Input.module.css";
 import { SearchContext } from "./SearchContext";
 
@@ -26,8 +26,10 @@ export default function Input({ className }: { className: string }) {
   const [_, searchActions] = useContext(SearchContext);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // TODO Add auto-suggestions
   // TODO Add eager eval foot preview
+
+  // TODO Only render TypeaheadPlugin when there is a current pause, e.g.
+  // {pauseId && (<TypeaheadPlugin pauseId={pauseId} />)}
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -45,11 +47,9 @@ export default function Input({ className }: { className: string }) {
     };
   }, [searchActions]);
 
-  const onChange = (...args: any[]) => {
-    // console.log("Lexical::onChange", ...args);
+  const onChange = () => {
+    // TODO whatever we need to do for "submitting" the content
   };
-
-  // TODO Only render TypeaheadPlugin when there is a current pause
 
   return (
     <div className={`${styles.Input} ${className}`}>

@@ -1,0 +1,1 @@
+export const MAX_TYPE_AHEAD_SUGGESTIONS = 10;

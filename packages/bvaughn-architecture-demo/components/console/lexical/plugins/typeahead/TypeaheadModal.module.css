@@ -1,0 +1,7 @@
+.TypeaheadModal {
+  position: fixed;
+  display: flex;
+  align-items: flex-end;
+  width: 0;
+  height: 0;
+}

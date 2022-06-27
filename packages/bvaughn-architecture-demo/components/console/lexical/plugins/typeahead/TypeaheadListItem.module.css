@@ -1,0 +1,16 @@
+.TypeaheadListItem,
+.TypeaheadListItemSelected {
+  list-style-type: none;
+  margin: 0;
+  line-height: 2rem;
+  padding: 0 1ch;
+  height: 2rem;
+
+  white-space: pre;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.TypeaheadListItemSelected {
+  background-color: var(--background-color-contrast-1);
+}

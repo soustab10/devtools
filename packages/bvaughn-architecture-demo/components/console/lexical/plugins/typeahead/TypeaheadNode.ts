@@ -1,13 +1,3 @@
-/**
- * Copyright (c) Meta Platforms, Inc. and affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- */
-
-import type { Spread } from "lexical";
-
 import {
   DOMConversionMap,
   DOMConversionOutput,
@@ -15,18 +5,10 @@ import {
   EditorConfig,
   LexicalNode,
   NodeKey,
-  SerializedTextNode,
   TextNode,
 } from "lexical";
 
-export type SerializedTypeaheadNode = Spread<
-  {
-    mentionName: string;
-    type: "mention";
-    version: 1;
-  },
-  SerializedTextNode
->;
+import { SerializedTypeaheadNode } from "./types";
 
 function convertTypeaheadElement(domNode: HTMLElement): DOMConversionOutput | null {
   const textContent = domNode.textContent;
@@ -42,6 +24,7 @@ function convertTypeaheadElement(domNode: HTMLElement): DOMConversionOutput | nu
 }
 
 const mentionStyle = "background-color: rgba(24, 119, 232, 0.2)";
+
 export class TypeaheadNode extends TextNode {
   __mention: string;
 
@@ -78,6 +61,7 @@ export class TypeaheadNode extends TextNode {
 
   createDOM(config: EditorConfig): HTMLElement {
     const dom = super.createDOM(config);
+    // TODO Use CSS module for this
     dom.style.cssText = mentionStyle;
     dom.className = "mention";
     return dom;
