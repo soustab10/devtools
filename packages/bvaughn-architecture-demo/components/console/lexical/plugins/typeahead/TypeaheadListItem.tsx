@@ -1,30 +1,40 @@
+import { CSSProperties } from "react";
+
 import styles from "./TypeaheadListItem.module.css";
 
+export type ItemData = {
+  onItemClick: (index: number) => void;
+  onItemHover: (index: number) => void;
+  results: String[];
+  selectedIndex: number | null;
+};
+
 export default function TypeaheadListItem({
+  data,
   index,
-  isSelected,
-  onClick,
-  onMouseEnter,
-  result,
+  style,
 }: {
+  data: ItemData;
   index: number;
-  isSelected: boolean;
-  onClick: () => void;
-  onMouseEnter: () => void;
-  result: string;
+  style: CSSProperties;
 }) {
+  const { onItemClick, onItemHover, results, selectedIndex } = data;
+
+  const result = results[index];
+  const isSelected = index === selectedIndex;
+
   return (
-    <li
-      key={result}
+    <div
       tabIndex={-1}
       className={isSelected ? styles.TypeaheadListItemSelected : styles.TypeaheadListItem}
       role="option"
       aria-selected={isSelected}
       id={"typeahead-item-" + index}
-      onMouseEnter={onMouseEnter}
-      onClick={onClick}
+      onClick={() => onItemClick(index)}
+      onMouseEnter={() => onItemHover(index)}
+      style={style}
     >
       {result}
-    </li>
+    </div>
   );
 }

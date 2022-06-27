@@ -10,12 +10,11 @@ import {
 } from "lexical";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 
-import TypeaheadList from "./TypeaheadList";
-import { Resolution } from "./types";
 import useTypeaheadLookupService from "./hooks/useTypeaheadLookupService";
-import createTypeaheadNodeFromSearchResult from "./utils/createTypeaheadNodeFromSearchResult";
-import { MAX_TYPE_AHEAD_SUGGESTIONS } from "./shared";
+import TypeaheadList from "./TypeaheadList";
 import styles from "./TypeaheadModal.module.css";
+import { Resolution } from "./types";
+import createTypeaheadNodeFromSearchResult from "./utils/createTypeaheadNodeFromSearchResult";
 
 export default function TypeaheadModal({
   close,
@@ -93,10 +92,7 @@ export default function TypeaheadModal({
         payload => {
           const event = payload;
           if (results !== null && selectedIndex !== null) {
-            if (
-              selectedIndex < MAX_TYPE_AHEAD_SUGGESTIONS - 1 &&
-              selectedIndex !== results.length - 1
-            ) {
+            if (selectedIndex !== results.length - 1) {
               updateSelectedIndex(selectedIndex + 1);
             }
             event.preventDefault();
@@ -167,6 +163,18 @@ export default function TypeaheadModal({
     );
   }, [applyCurrentSelected, close, editor, results, selectedIndex, updateSelectedIndex]);
 
+  const onListItemClick = useCallback(
+    (index: number) => {
+      setSelectedIndex(index);
+      applyCurrentSelected();
+    },
+    [applyCurrentSelected]
+  );
+
+  const onListItemHover = useCallback((index: number) => {
+    setSelectedIndex(index);
+  }, []);
+
   if (results === null) {
     return null;
   }
@@ -180,13 +188,8 @@ export default function TypeaheadModal({
       role="listbox"
     >
       <TypeaheadList
-        onClick={(index: number) => {
-          setSelectedIndex(index);
-          applyCurrentSelected();
-        }}
-        onHover={(index: number) => {
-          setSelectedIndex(index);
-        }}
+        onItemClick={onListItemClick}
+        onItemHover={onListItemHover}
         results={results}
         selectedIndex={selectedIndex}
       />

@@ -28,9 +28,6 @@ export default function Input({ className }: { className: string }) {
 
   // TODO Add eager eval foot preview
 
-  // TODO Only render TypeaheadPlugin when there is a current pause, e.g.
-  // {pauseId && (<TypeaheadPlugin pauseId={pauseId} />)}
-
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "f" && event.metaKey) {

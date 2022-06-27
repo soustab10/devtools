@@ -103,6 +103,7 @@ export async function renderFocused(
   };
 
   const pauseContext: PauseContextType = {
+    isPending: false,
     pauseId: null,
     update: jest.fn(),
     ...options?.pauseContext,
@@ -146,6 +147,7 @@ const MockReplayClient = {
   getRecordingId: jest.fn().mockImplementation(async () => "fake-recording-id"),
   getSessionId: jest.fn().mockImplementation(async () => "fake-session-id"),
   initialize: jest.fn().mockImplementation(async () => {}),
+  getAllFrames: jest.fn().mockImplementation(async () => ({ data: {} })),
   getObjectWithPreview: jest.fn().mockImplementation(async () => ({ data: {} })),
   getPointNearTime: jest.fn().mockImplementation(async () => ({ point: "0", time: 0 })),
   getSessionEndpoint: jest.fn().mockImplementation(async () => ({

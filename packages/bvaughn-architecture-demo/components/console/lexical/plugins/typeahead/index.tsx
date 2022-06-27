@@ -1,13 +1,15 @@
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
-import { ReactPortal, useCallback } from "react";
+import { ReactPortal, useCallback, useContext } from "react";
 import { createPortal } from "react-dom";
 
 import TypeaheadModal from "./TypeaheadModal";
 import useTypeahead from "./hooks/useTypeahead";
+import { PauseContext } from "@bvaughn/src/contexts/PauseContext";
 
 // This plug-in is based off of the Lexical Mentions plugin example
 // https://github.com/facebook/lexical/blob/main/packages/lexical-playground/src/plugins/MentionsPlugin.tsx
 export default function TypeaheadPlugin(): ReactPortal | null {
+  const { pauseId } = useContext(PauseContext);
   const [editor] = useLexicalComposerContext();
   const [resolution, setResolution] = useTypeahead(editor);
 
@@ -15,7 +17,7 @@ export default function TypeaheadPlugin(): ReactPortal | null {
     setResolution(null);
   }, [setResolution]);
 
-  if (resolution === null || editor === null) {
+  if (editor === null || pauseId === null || resolution === null) {
     return null;
   } else {
     return createPortal(

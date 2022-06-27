@@ -1,44 +1,63 @@
-import { useEffect, useState } from "react";
+import { PauseContext } from "@bvaughn/src/contexts/PauseContext";
+import { getObjectWithPreview } from "@bvaughn/src/suspense/ObjectPreviews";
+import { getPauseData } from "@bvaughn/src/suspense/PauseDataCache";
+import { suspendInParallel } from "@bvaughn/src/utils/suspense";
+import { NamedValue, Object, Scope } from "@replayio/protocol";
+import { useContext, useMemo } from "react";
+import { ReplayClientContext } from "shared/client/ReplayClientContext";
 
-// TODO Fetch this data from the server
-const dummyTypeaheadsData = ["body", "console", "document", "window"];
-const dummyLookupService = {
-  search(string: string, callback: (results: Array<string> | null) => void): void {
-    setTimeout(() => {
-      const results = dummyTypeaheadsData.filter(mention =>
-        mention.toLowerCase().includes(string.toLowerCase())
-      );
-      if (results.length === 0) {
-        callback(null);
-      } else {
-        callback(results);
-      }
-    }, 500);
-  },
-};
-
-const mentionsCache = new Map();
-
-// TODO Connect to Replay protocol
 export default function useTypeaheadLookupService(token: string) {
-  const [results, setResults] = useState<Array<string> | null>(null);
+  const { pauseId } = useContext(PauseContext);
+  const client = useContext(ReplayClientContext);
+  const pauseData = pauseId ? getPauseData(client, pauseId) : null;
 
-  useEffect(() => {
-    const cachedResults = mentionsCache.get(token);
-    if (cachedResults === null) {
-      return;
-    } else if (cachedResults !== undefined) {
-      setResults(cachedResults);
-      return;
+  const results = useMemo<string[] | null>(() => {
+    if (!token || !pauseData || !pauseId) {
+      return null;
     }
 
-    mentionsCache.set(token, null);
+    const lowerCaseToken = token.toLowerCase();
+    const objectFetchFunctions: any[] = [];
+    const uniqueNames: Set<string> = new Set();
 
-    dummyLookupService.search(token, newResults => {
-      mentionsCache.set(token, newResults);
-      setResults(newResults);
+    // Matches should include any scope bindings:
+    const topFrame = pauseData.frames?.[0];
+    topFrame?.scopeChain?.forEach((scopeId: string) => {
+      const scope = pauseData.scopes?.find(scope => scope.scopeId === scopeId);
+      if (scope) {
+        scope?.bindings?.forEach((namedValue: NamedValue) => {
+          uniqueNames.add(namedValue.name);
+        });
+
+        // Some objects may need to have their previews fetched, which will suspend.
+        const objectId = scope.object;
+        if (objectId) {
+          objectFetchFunctions.push(() => getObjectWithPreview(client, pauseId, objectId));
+        }
+      }
     });
-  }, [token]);
+
+    // As well as properties (and getters) for scope objects.
+    //
+    // Note that Object previews may need to be fetched before we can read them.
+    // Fetch them in parallel to avoid serially suspending.
+    const objectsWithPreviews = suspendInParallel(...objectFetchFunctions);
+    objectsWithPreviews.forEach((object: Object) => {
+      const preview = object.preview;
+      if (preview) {
+        preview.getterValues?.forEach((namedValue: NamedValue) => {
+          uniqueNames.add(namedValue.name);
+        });
+        preview.properties?.forEach((namedValue: NamedValue) => {
+          uniqueNames.add(namedValue.name);
+        });
+      }
+    });
+
+    return Array.from(uniqueNames)
+      .filter(name => name.toLowerCase().includes(lowerCaseToken))
+      .sort((a, b) => a.localeCompare(b));
+  }, [client, pauseData, pauseId, token]);
 
   return results;
 }
