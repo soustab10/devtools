@@ -4,18 +4,20 @@ import { PlainTextPlugin } from "@lexical/react/LexicalPlainTextPlugin";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
+import { EditorState, LexicalEditor } from "lexical";
 import { useContext, useEffect, useRef } from "react";
 
 import Icon from "../Icon";
 
-import { TypeaheadNode } from "./lexical/plugins/typeahead/TypeaheadNode";
+import { SyntaxHighlightNode, SyntaxHighlightPlugin } from "./lexical/plugins/code";
 import TypeaheadPlugin from "./lexical/plugins/typeahead";
 import styles from "./Input.module.css";
 import { SearchContext } from "./SearchContext";
+import TreeViewPlugin from "./lexical/plugins/TreeViewPlugin";
 
 const lexicalConfig = {
   namespace: "ConsoleInput",
-  nodes: [TypeaheadNode],
+  nodes: [SyntaxHighlightNode],
   onError: (...args: any[]) => {
     console.error("Lexical::onError", ...args);
   },
@@ -26,6 +28,7 @@ export default function Input({ className }: { className: string }) {
   const [_, searchActions] = useContext(SearchContext);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // TODO Syntax highlighting plugin
   // TODO Add eager eval foot preview
 
   useEffect(() => {
@@ -44,7 +47,7 @@ export default function Input({ className }: { className: string }) {
     };
   }, [searchActions]);
 
-  const onChange = () => {
+  const onChange = (editorState: EditorState, editor: LexicalEditor) => {
     // TODO whatever we need to do for "submitting" the content
   };
 
@@ -62,6 +65,8 @@ export default function Input({ className }: { className: string }) {
           <HistoryPlugin />
           <TypeaheadPlugin />
           <CustomAutoFocusPlugin />
+          <SyntaxHighlightPlugin />
+          <TreeViewPlugin />
         </div>
       </LexicalComposer>
     </div>

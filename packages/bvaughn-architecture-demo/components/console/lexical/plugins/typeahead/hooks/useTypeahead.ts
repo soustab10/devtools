@@ -1,7 +1,6 @@
 import type { LexicalEditor } from "lexical";
 import { Dispatch, SetStateAction, startTransition, useEffect, useState } from "react";
 
-import { TypeaheadNode } from "../TypeaheadNode";
 import { Resolution } from "../types";
 import getTypeaheadTextToSearch from "../utils/getTypeaheadTextToSearch";
 import tryToPositionRange from "../utils/tryToPositionRange";
@@ -12,22 +11,16 @@ export default function useTypeahead(
   const [resolution, setResolution] = useState<Resolution | null>(null);
 
   useEffect(() => {
-    if (!editor.hasNodes([TypeaheadNode])) {
-      throw new Error("TypeaheadsPlugin: TypeaheadNode not registered on editor");
-    }
-  }, [editor]);
-
-  useEffect(() => {
     let activeRange: Range | null = document.createRange();
     let previousText: string | null = null;
 
     const updateListener = () => {
       const range = activeRange;
       const text = getTypeaheadTextToSearch(editor);
-
       if (text === previousText || range === null) {
         return;
       }
+
       previousText = text;
 
       if (text === null) {
@@ -38,6 +31,7 @@ export default function useTypeahead(
       if (match) {
         const token = match[0];
         const isRangePositioned = tryToPositionRange(range, match.index);
+        console.log(`%cuseTypeahead() "${token}"`, "color: yellow;");
         if (isRangePositioned !== null) {
           startTransition(() => setResolution({ range, token }));
           return;

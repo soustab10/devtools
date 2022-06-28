@@ -175,7 +175,7 @@ export default function TypeaheadModal({
     setSelectedIndex(index);
   }, []);
 
-  if (results === null) {
+  if (results === null || results.length === 0) {
     return null;
   }
 

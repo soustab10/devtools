@@ -1,7 +1,5 @@
-import type { LexicalEditor } from "lexical";
+import { $createTextNode, LexicalEditor } from "lexical";
 import { $getSelection, $isRangeSelection } from "lexical";
-
-import { $createTypeaheadNode } from "../TypeaheadNode";
 
 import getTypeaheadOffset from "./getTypeaheadOffset";
 
@@ -24,9 +22,8 @@ export default function createTypeaheadNodeFromSearchResult(
       return;
     }
     const anchorNode = anchor.getNode();
-    // We should not be attempting to extract mentions out of nodes
-    // that are already being used for other core things. This is
-    // especially true for token nodes, which can't be mutated at all.
+    // We should not be attempting to extract mentions out of nodes that are already being used for other core things.
+    // This is especially true for token nodes, which can't be mutated at all.
     if (!anchorNode.isSimpleText()) {
       return;
     }
@@ -49,8 +46,9 @@ export default function createTypeaheadNodeFromSearchResult(
       [, nodeToReplace] = anchorNode.splitText(startOffset, selectionOffset);
     }
 
-    const mentionNode = $createTypeaheadNode(entryText);
-    nodeToReplace.replace(mentionNode);
-    mentionNode.select();
+    // Insert regular TextNodes so that they can be syntax highlighted by the code plugin.
+    const textNode = $createTextNode(entryText);
+    nodeToReplace.replace(textNode);
+    textNode.select();
   });
 }
