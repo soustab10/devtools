@@ -14,14 +14,14 @@ import type { UIState } from "ui/state";
 // Selectors
 import {
   getShownSource,
-  getSelectedSource,
   getSourcesLoading,
   getDebuggeeUrl,
   getExpandedState,
-  getDisplayedSources,
+  // getDisplayedSources,
   getFocusedSourceItem,
   getContext,
 } from "../../selectors";
+import { getSelectedSource, getAllSourceDetails } from "ui/reducers/sources";
 
 // Actions
 import actions from "../../actions";
@@ -65,7 +65,7 @@ function findSource(sources: Record<string, Source>, itemPath: string, source: S
 const mapStateToProps = (state: UIState) => {
   const selectedSource = getSelectedSource(state);
   const shownSource = getShownSource(state);
-  const sources = getDisplayedSources(state);
+  const sources = getAllSourceDetails(state);
 
   return {
     cx: getContext(state),
@@ -191,6 +191,8 @@ class SourcesTree extends Component<PropsFromRedux, STState> {
       return path;
     }
 
+    // TODO Reimplement blackboxing
+    // @ts-expect-error
     const blackBoxedPart = source.isBlackBoxed ? ":blackboxed" : "";
 
     return `${path}/${source.id}/${blackBoxedPart}`;

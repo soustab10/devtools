@@ -18,15 +18,20 @@ import {
   getQuickOpenQuery,
   getQuickOpenType,
   getQuickOpenProject,
-  getSelectedSource,
-  getSourceContent,
+  // getSelectedSource,
+  // getSourceContent,
   getSourcesLoading,
   getSymbols,
   getTabs,
-  getDisplayedSources,
+  // getDisplayedSources,
   isSymbolsLoading,
   getContext,
 } from "../selectors";
+import {
+  getSelectedSource,
+  getSourceContent,
+  selectSourceDetailsEntities,
+} from "ui/reducers/sources";
 import { setViewMode } from "ui/actions/layout";
 import { getViewMode } from "ui/reducers/layout";
 import { memoizeLast } from "../utils/memoizeLast";
@@ -68,7 +73,7 @@ function mapStateToProps(state: UIState) {
 
   return {
     cx: getContext(state),
-    displayedSources: getDisplayedSources(state),
+    // displayedSources: selectSourceDetailsEntities(state),
     enabled: getQuickOpenEnabled(state),
     globalFunctions: getGlobalFunctions(state) || [],
     globalFunctionsLoading: isGlobalFunctionsLoading(state),

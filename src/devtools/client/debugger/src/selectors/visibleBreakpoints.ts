@@ -6,7 +6,7 @@ import { createSelector } from "reselect";
 import uniqBy from "lodash/uniqBy";
 
 import { getBreakpointsList, getRequestedBreakpointsList } from "./breakpoints";
-import { getSelectedSource } from "../reducers/sources";
+import { getSelectedSource } from "ui/reducers/sources";
 
 import { sortSelectedBreakpoints } from "../utils/breakpoint";
 import { Breakpoint } from "../reducers/types";

@@ -63,6 +63,7 @@ import { openContextMenu, closeContextMenu } from "ui/actions/contextMenus";
 import { getContextMenu } from "ui/reducers/contextMenus";
 
 import { selectors } from "ui/reducers";
+import { getSelectedSourceWithContent } from "ui/reducers/sources";
 import { NAG_HEIGHT, NAG_HAT_CLASS } from "ui/components/shared/Nags/Nags";
 const cssVars = {
   searchbarHeight: "var(--editor-searchbar-height)",
@@ -265,6 +266,8 @@ class Editor extends PureComponent {
     }
 
     // if user clicks gutter to set breakpoint on blackboxed source, un-blackbox the source.
+    // TODO Reimplement blackboxing
+    // @ts-expect-error
     if (selectedSource && selectedSource.isBlackBoxed) {
       toggleBlackBox(cx, selectedSource);
     }
@@ -469,7 +472,7 @@ Editor.childContextTypes = {
 };
 
 const mapStateToProps = state => {
-  const selectedSource = selectors.getSelectedSourceWithContent(state);
+  const selectedSource = getSelectedSourceWithContent(state);
 
   return {
     cx: selectors.getThreadContext(state),

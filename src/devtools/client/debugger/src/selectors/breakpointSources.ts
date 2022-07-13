@@ -8,7 +8,8 @@ import { createSelector } from "reselect";
 import type { UIState } from "ui/state";
 
 import type { Source } from "../reducers/sources";
-import { getSources, getSelectedSource, resourceAsSourceBase } from "../reducers/sources";
+import { getSources, resourceAsSourceBase } from "../reducers/sources";
+import { getSelectedSource } from "ui/reducers/sources";
 import type { Breakpoint } from "../reducers/types";
 import { isBreakable, isLogpoint, sortSelectedBreakpoints } from "../utils/breakpoint";
 import { makeShallowQuery } from "../utils/resource";

@@ -3,6 +3,7 @@ import uniq from "lodash/uniq";
 import { createSelector } from "reselect";
 import type { UIState } from "ui/state";
 
+import { getSelectedSourceId } from "ui/reducers/sources";
 import { pending, fulfilled, rejected, asSettled } from "../utils/async-value";
 import { findPosition } from "../utils/breakpoint/breakpointPositions";
 import { prefs } from "../utils/prefs";
@@ -581,10 +582,6 @@ export function getSourceList(state: UIState) {
   return querySourceList(getSources(state));
 }
 
-export function getDisplayedSourcesList(state: UIState) {
-  return Object.values(getDisplayedSources(state)).flatMap(Object.values);
-}
-
 export function getExtensionNameBySourceUrl(state: UIState, url: string) {
   const match = getSourceList(state).find(source => source.url && source.url.startsWith(url));
   if (match && match.extensionName) {
@@ -601,7 +598,21 @@ export const getSelectedLocation = createSelector(
   sources => sources.selectedLocation
 );
 
+export function getSourceActorsForSource(state: UIState, id: string) {
+  const actors = state.sources.actors[id];
+  if (!actors) {
+    return [];
+  }
+
+  return getSourceActors(state, actors);
+}
+
+/*
 export type SelectedSource = ReturnType<typeof getSelectedSource>;
+
+export function getDisplayedSourcesList(state: UIState) {
+  return Object.values(getDisplayedSources(state)).flatMap(Object.values);
+}
 
 export const getSelectedSource = createSelector(
   getSelectedLocation,
@@ -614,6 +625,7 @@ export const getSelectedSource = createSelector(
     return getSourceInSources(sources, selectedLocation.sourceId!);
   }
 );
+
 
 export const getSelectedSourceWithContent = createSelector(
   getSelectedLocation,
@@ -650,14 +662,7 @@ export const getDisplayedSources = createSelector(
   }
 );
 
-export function getSourceActorsForSource(state: UIState, id: string) {
-  const actors = state.sources.actors[id];
-  if (!actors) {
-    return [];
-  }
 
-  return getSourceActors(state, actors);
-}
 
 export function canLoadSource(state: UIState, sourceId: string) {
   // Return false if we know that loadSourceText() will fail if called on this
@@ -674,6 +679,7 @@ export function canLoadSource(state: UIState, sourceId: string) {
 export function isSourceWithMap(state: UIState, id: string): boolean {
   return getSourceActorsForSource(state, id).some(sourceActor => sourceActor.sourceMapURL);
 }
+*/
 
 export function getBreakpointPositions(state: UIState) {
   return state.sources.breakpointPositions;
@@ -734,6 +740,7 @@ export function selectedLocationHasScrolled(state: UIState) {
   return state.sources.selectedLocationHasScrolled;
 }
 
+/*
 export function getTextAtLocation(state: UIState, id: string, location: SourceLocation) {
   const source = getSource(state, id);
   if (!source) {
@@ -749,7 +756,7 @@ export function getTextAtLocation(state: UIState, id: string, location: SourceLo
 
   return text;
 }
-
+*/
 export function getSourcesLoading(state: UIState) {
   return state.sources.sourcesLoading;
 }

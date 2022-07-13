@@ -12,13 +12,12 @@ import AccessibleImage from "../shared/AccessibleImage";
 import actions from "../../actions";
 import {
   getActiveSearch,
-  getSelectedSource,
-  getSourceContent,
   getFileSearchQuery,
   getFileSearchModifiers,
   getFileSearchResults,
   getContext,
 } from "../../selectors";
+import { getSelectedSource, getSourceContent } from "ui/reducers/sources";
 
 import { removeOverlay } from "../../utils/editor";
 

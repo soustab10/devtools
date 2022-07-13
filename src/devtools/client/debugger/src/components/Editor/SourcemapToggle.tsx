@@ -7,7 +7,7 @@ import { UIState } from "ui/state";
 
 import actions from "../../actions";
 import { getAlternateSource } from "../../reducers/pause";
-import { getSelectedSourceWithContent } from "../../reducers/sources";
+import { getSelectedSourceWithContent } from "ui/reducers/sources";
 import { getUniqueAlternateSourceId } from "../../utils/sourceVisualizations";
 
 import Toggle from "./Toggle";

@@ -2,7 +2,7 @@ import React, { memo, useEffect, useLayoutEffect, useRef, useState } from "react
 import { useAppSelector } from "ui/setup/hooks";
 import { localStorageGetItem, localStorageSetItem } from "ui/utils/storage";
 
-import { getSelectedSourceWithContent } from "../../selectors";
+import { getSelectedSourceWithContent } from "ui/reducers/sources";
 
 import SourcemapToggle from "./SourcemapToggle";
 import SourcemapVisualizerLink from "./SourcemapVisualizerLink";

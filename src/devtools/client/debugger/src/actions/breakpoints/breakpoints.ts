@@ -6,6 +6,7 @@ import { selectors } from "ui/reducers";
 import { setHoveredLineNumberLocation } from "ui/reducers/app";
 import type { UIState } from "ui/state";
 import { trackEvent } from "ui/utils/telemetry";
+import type { SourceDetails } from "ui/reducers/sources";
 
 import {
   Breakpoint,
@@ -21,12 +22,13 @@ import { Source } from "../../reducers/sources";
 import { PrefixBadge } from "../../reducers/types";
 import {
   getBreakpointsList,
-  getSelectedSource,
+  // getSelectedSource,
   getBreakpointAtLocation,
   getFirstBreakpointPosition,
   getSymbols,
   getThreadContext,
 } from "../../selectors";
+import { getSelectedSource } from "ui/reducers/sources";
 import { getRequestedBreakpointLocations } from "../../selectors/breakpoints";
 import { findClosestEnclosedSymbol } from "../../utils/ast";
 import { isLogpoint } from "../../utils/breakpoint";
@@ -316,7 +318,7 @@ export function setBreakpointPrefixBadge(
   };
 }
 
-function getLogValue(source: Source, state: UIState, location: Location) {
+function getLogValue(source: SourceDetails, state: UIState, location: Location) {
   const file = getFilename(source);
   const symbols = getSymbols(state, source);
   const { line, column } = location;

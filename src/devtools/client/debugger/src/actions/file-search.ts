@@ -7,11 +7,12 @@ import type { Context } from "../reducers/pause";
 
 import { closeActiveSearch, clearHighlightLineRange } from "../reducers/ui";
 import {
-  getSelectedSourceWithContent,
   getFileSearchModifiers,
   getFileSearchQuery,
   getFileSearchResults,
+  // getSelectedSourceWithContent
 } from "../selectors";
+import { getSelectedSourceWithContent, LoadingState } from "ui/reducers/sources";
 import { isFulfilled } from "../utils/async-value";
 
 import {
@@ -113,7 +114,8 @@ export function searchContents(
       !editor ||
       !selectedSource ||
       !selectedSource.content ||
-      !isFulfilled(selectedSource.content) ||
+      selectedSource.status !== LoadingState.LOADED ||
+      // !isFulfilled(selectedSource.content) ||
       !modifiers
     ) {
       return;
@@ -127,7 +129,7 @@ export function searchContents(
       return;
     }
 
-    const text = selectedContent!.value;
+    const text = selectedContent;
     const matches = await getMatches(query, text, modifiers);
 
     const res = find(ctx, query, true, modifiers, focusFirstResult);

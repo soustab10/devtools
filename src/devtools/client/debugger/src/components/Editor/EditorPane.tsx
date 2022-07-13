@@ -16,7 +16,7 @@ import { useFeature } from "ui/hooks/settings";
 import { getToolboxLayout } from "ui/reducers/layout";
 import useWidthObserver from "ui/utils/useWidthObserver";
 
-import { getSelectedSource } from "../../reducers/sources";
+import { getSelectedSource } from "ui/reducers/sources";
 
 export const EditorPane = () => {
   const [loadingEditor, setLoadingEditor] = useState(true);

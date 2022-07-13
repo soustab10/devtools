@@ -14,12 +14,8 @@ import A11yIntention from "./A11yIntention";
 import { ShortcutsModal } from "./ShortcutsModal";
 import SplitBox from "devtools/client/shared/components/splitter/SplitBox";
 
-import {
-  getActiveSearch,
-  getPaneCollapse,
-  getQuickOpenEnabled,
-  getSelectedSource,
-} from "../selectors";
+import { getActiveSearch, getPaneCollapse, getQuickOpenEnabled } from "../selectors";
+import { getSelectedSource } from "ui/reducers/sources";
 
 import { getSelectedPanel } from "ui/reducers/layout";
 import { getToolboxLayout } from "ui/reducers/layout";

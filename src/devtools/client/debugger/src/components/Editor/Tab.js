@@ -26,12 +26,12 @@ import {
 import { getTabMenuItems } from "../../utils/tabs";
 
 import {
-  getSelectedSource,
   getActiveSearch,
   getSourcesForTabs,
   getHasSiblingOfSameName,
   getContext,
 } from "../../selectors";
+import { getSelectedSource } from "ui/reducers/sources";
 
 import classnames from "classnames";
 import { trackEvent } from "ui/utils/telemetry";
@@ -131,6 +131,8 @@ class Tab extends PureComponent {
       {
         item: {
           ...tabMenuItems.toggleBlackBox,
+          // TODO Reimplement blackboxing
+          // @ts-expect-error
           label: source.isBlackBoxed ? "Unblackbox source" : "Blackbox source",
           disabled: !shouldBlackbox(source),
           click: () => toggleBlackBox(cx, source),

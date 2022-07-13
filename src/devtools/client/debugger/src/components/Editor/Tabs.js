@@ -8,7 +8,8 @@ import { connect } from "react-redux";
 
 import Tab from "./Tab";
 
-import { getSelectedSource, getSourcesForTabs, getIsPaused, getContext } from "../../selectors";
+import { getSourcesForTabs, getIsPaused, getContext } from "../../selectors";
+import { getSelectedSource } from "ui/reducers/sources";
 import { isPretty } from "../../utils/source";
 import actions from "../../actions";
 import { trackEvent } from "ui/utils/telemetry";
@@ -77,6 +78,8 @@ class Tabs extends PureComponent {
     if (isPretty(source)) {
       return "prettyPrint";
     }
+    // TODO Reimplement blackboxing
+    // @ts-expect-error
     if (source.isBlackBoxed) {
       return "blackBox";
     }

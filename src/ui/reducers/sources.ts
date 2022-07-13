@@ -36,7 +36,7 @@ export enum LoadingState {
 export interface SourceContent {
   id: string;
   status: LoadingState;
-  value?: {
+  content?: {
     contentType: string;
     type: string;
     value: string;
@@ -49,7 +49,12 @@ const contentsAdapter = createEntityAdapter<SourceContent>();
 
 export const sourceSelectors = sourcesAdapter.getSelectors();
 export const contentSelectors = contentsAdapter.getSelectors();
-const sourceDetailSelectors = sourceDetailsAdapter.getSelectors();
+// const sourceDetailSelectors = sourceDetailsAdapter.getSelectors
+export const {
+  selectAll: getAllSourceDetails,
+  selectById: getSourceDetails,
+  selectEntities: selectSourceDetailsEntities,
+} = sourceDetailsAdapter.getSelectors((state: UIState) => state.experimentalSources.sourceDetails);
 
 export interface SourcesState {
   allSourcesReceived: boolean;
@@ -107,7 +112,7 @@ const sourcesSlice = createSlice({
       contentsAdapter.upsertOne(state.contents, {
         id: action.payload.sourceId,
         status: LoadingState.LOADED,
-        value: {
+        content: {
           contentType: action.payload.contentType,
           value: action.payload.contents,
           type: action.payload.contentType.slice(0, action.payload.contentType.indexOf("/")),
@@ -151,6 +156,7 @@ export const experimentalLoadSourceText = (sourceId: string): UIThunkAction<Prom
     try {
       const response = await ThreadFront.getSourceContents(sourceId);
 
+      console.log("Setting source text: ", sourceId, response.contents.slice(0, 25));
       parser.setSource(sourceId, {
         type: "text",
         value: response.contents,
@@ -164,9 +170,23 @@ export const experimentalLoadSourceText = (sourceId: string): UIThunkAction<Prom
   };
 };
 
+/*
+function sortaCreateSelector(...args: SelectorFunctions[]) {
+  const inputFunctions = sliceOffLast(args);
+  const outputFunction = args[args.length -1];
+
+  return function sortaGeneratedSelector(...args: any[]) {
+    const mappedInputs = inputFunctions.map(input => input(...args));
+    if (!shallowEqual(mappedInputs, oldMappedInputs)) {
+      return outputFunction(...mappedInputs);
+    }
+  }
+}
+*/
+
 export const getSourcesLoading = (state: UIState) => !state.experimentalSources.allSourcesReceived;
-export const getAllSourceDetails = (state: UIState) =>
-  sourceDetailSelectors.selectAll(state.experimentalSources.sourceDetails);
+// export const getAllSourceDetails = (state: UIState) =>
+// sourceDetailSelectors.selectAll(state.experimentalSources.sourceDetails);
 
 export const getSelectedLocation = (state: UIState) =>
   state.experimentalSources.selectedLocationHistory[0];
@@ -179,21 +199,29 @@ export const getSelectedSource = (state: UIState) => {
   const selectedSourceId = getSelectedSourceId(state);
   return selectedSourceId ? getSourceDetails(state, selectedSourceId) : null;
 };
+export const getSourcesById = createSelector(
+  selectSourceDetailsEntities,
+  (state: UIState, ids: string[]) => ids,
+  (detailsEntities, ids) => {
+    return ids.map(id => detailsEntities[id]!);
+  }
+);
+/*
 export const getSourcesById = (state: UIState, ids: string[]) => {
   return ids.map(
-    id => sourceDetailSelectors.selectById(state.experimentalSources.sourceDetails, id)!
+    id => getSourceDetails(state.experimentalSources.sourceDetails, id)!
   );
 };
-export const getSourceDetails = (state: UIState, id: string) => {
-  return sourceDetailSelectors.selectById(state.experimentalSources.sourceDetails, id);
-};
+*/
+// export const getSourceDetails = (state: UIState, id: string) => {
+//   return sourceDetailSelectors.selectById(state.experimentalSources.sourceDetails, id);
+// };
 export const getCorrespondingSourceIds = (state: UIState, id: string) => {
-  return sourceDetailSelectors.selectById(state.experimentalSources.sourceDetails, id)
-    ?.correspondingSourceIds;
+  return getSourceDetails(state, id)?.correspondingSourceIds;
 };
 export const getSourceByUrl = (state: UIState, url: string) => {
   const id = state.experimentalSources.sourcesByUrl[url][0];
-  return sourceDetailSelectors.selectById(state.experimentalSources.sourceDetails, id);
+  return getSourceDetails(state, id);
 };
 export const getSourceContent = (state: UIState, id: string) => {
   return state.experimentalSources.contents.entities[id];

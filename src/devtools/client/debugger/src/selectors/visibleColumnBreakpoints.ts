@@ -12,11 +12,11 @@ import { features } from "ui/utils/prefs";
 
 import {
   getSource,
-  getSelectedSource,
-  getSelectedSourceWithContent,
+  // getSelectedSourceWithContent,
   getBreakpointPositions,
   getBreakpointPositionsForSource,
 } from "../reducers/sources";
+import { getSelectedSource, getSourceContent, SourceContent } from "ui/reducers/sources";
 import type { Source, SourceWithContent } from "../reducers/sources";
 import type { Breakpoint, Range, SourceLocation } from "../reducers/types";
 import { getViewport } from "../reducers/ui";
@@ -90,7 +90,7 @@ function filterByBreakpoints(positions: Location[], breakpointMap: BreakpointMap
 }
 
 // Filters out breakpoints to the right of the line. (bug 1552039)
-function filterInLine(positions: Location[], selectedContent: SourceWithContent["content"]) {
+function filterInLine(positions: Location[], selectedContent: SourceContent) {
   return positions.filter(position => {
     const lineText = getLineText(selectedContent, position.line);
 
@@ -132,7 +132,7 @@ export const visibleColumnBreakpoints = createSelector(
   getVisibleBreakpoints,
   getVisibleRequestedBreakpoints,
   getViewport,
-  getSelectedSourceWithContent,
+  getSourceContent,
   getVisibleBreakpointPositions,
   (breakpoints, requestedBreakpoints, viewport, selectedSource, breakpointPositions) => {
     if (!selectedSource) {
@@ -163,7 +163,7 @@ export const visibleColumnBreakpoints = createSelector(
     const breakpointMap = groupBreakpoints(allBreakpoints);
     // @ts-ignore columns undefined
     positions = filterVisible(positions, viewport);
-    positions = filterInLine(positions, selectedSource.content);
+    positions = filterInLine(positions, selectedSource);
     positions = filterByBreakpoints(positions, breakpointMap);
 
     return formatPositions(positions, breakpointMap);

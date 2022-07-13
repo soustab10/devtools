@@ -5,7 +5,7 @@ import { useAppSelector } from "ui/setup/hooks";
 import { trackEvent } from "ui/utils/telemetry";
 
 import { getAlternateSource } from "../../reducers/pause";
-import { getSelectedSourceWithContent } from "../../reducers/sources";
+import { getSelectedSourceWithContent } from "ui/reducers/sources";
 
 export default function SourcemapVisualizerLink() {
   const selectedSource = useAppSelector(getSelectedSourceWithContent);

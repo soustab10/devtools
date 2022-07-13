@@ -46,6 +46,8 @@ const showSourceMenuItem = (cx, selectedSource, editorActions) => ({
 
 const blackBoxMenuItem = (cx, selectedSource, editorActions) => ({
   id: "node-menu-blackbox",
+  // TODO Reimplement blackboxing
+  // @ts-expect-error
   label: selectedSource.isBlackBoxed ? "Unblackbox source" : "Blackbox source",
   accesskey: selectedSource.isBlackBoxed ? "U" : "B",
   disabled: !shouldBlackbox(selectedSource),

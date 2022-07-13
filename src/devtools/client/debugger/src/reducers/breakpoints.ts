@@ -28,7 +28,7 @@ import assert from "../utils/assert";
 import { shallowEqual } from "../utils/resource/compare";
 import { getLocationKey, isMatchingLocation, isLogpoint } from "../utils/breakpoint";
 
-import { getSelectedSource } from "./sources";
+import { getSelectedSource } from "ui/reducers/sources";
 import type { Breakpoint, SourceLocation } from "./types";
 import { FocusRegion, UnsafeFocusRegion } from "ui/state/timeline";
 export type { Breakpoint } from "./types";
