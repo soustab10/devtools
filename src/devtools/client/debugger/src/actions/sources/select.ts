@@ -16,19 +16,18 @@ import { trackEvent } from "ui/utils/telemetry";
 
 import type { Context } from "../../reducers/pause";
 import { getFrames, getSelectedFrameId } from "../../reducers/pause";
-import type { Location, Source } from "../../reducers/sources";
 import { tabExists } from "../../reducers/tabs";
 import { closeActiveSearch } from "../../reducers/ui";
 import { setShownSource } from "../../reducers/ui";
 import {
-  getSource,
-  getSourceByURL,
-  getActiveSearch,
+  experimentalLoadSourceText,
   getSelectedSource,
-  getExecutionPoint,
-  getThreadContext,
-  getContext,
-} from "../../selectors";
+  getSourceDetails,
+  getSourceByUrl,
+  SourceDetails,
+  selectLocation as setSelectedLocation,
+} from "ui/reducers/sources";
+import { getActiveSearch, getExecutionPoint, getThreadContext, getContext } from "../../selectors";
 import { createLocation } from "../../utils/location";
 import { paused } from "../pause/paused";
 
@@ -37,13 +36,6 @@ import { loadSourceText } from "./loadSourceText";
 import { setSymbols } from "./symbols";
 
 type PartialLocation = Parameters<typeof createLocation>[0];
-
-export const setSelectedLocation = (cx: Context, source: Source, location: Location) => ({
-  type: "SET_SELECTED_LOCATION",
-  cx,
-  source,
-  location,
-});
 
 interface PendingSelectedLocationOptions {
   line: number;
@@ -84,7 +76,7 @@ export function selectSourceURL(
   options: PendingSelectedLocationOptions
 ): UIThunkAction<Promise<{ type: string; cx: Context } | undefined>> {
   return async (dispatch, getState) => {
-    const source = getSourceByURL(getState(), url);
+    const source = getSourceByUrl(getState(), url);
     if (!source) {
       return dispatch(setPendingSelectedLocation(cx, url, options));
     }
@@ -120,9 +112,9 @@ export function deselectSource(): UIThunkAction {
   };
 }
 
-export function addTab(source: Source) {
+export function addTab(source: SourceDetails) {
   const { url, id: sourceId } = source;
-  const isOriginal = source.isOriginal;
+  const isOriginal = source.canonicalId === sourceId;
 
   return {
     type: "ADD_TAB",
@@ -141,27 +133,21 @@ export function selectLocation(
   location: PartialLocation,
   openSourcesTab = true
 ): UIThunkAction<Promise<{ type: string; cx: Context } | undefined>> {
-  return async (dispatch, getState, { client, ThreadFront }) => {
+  return async (dispatch, getState, { ThreadFront }) => {
     const currentSource = getSelectedSource(getState());
     trackEvent("sources.select_location");
 
-    if (!client) {
-      // No connection, do nothing. This happens when the debugger is
-      // shut down too fast and it tries to display a default source.
-      return;
-    }
-
-    let source = getSource(getState(), location.sourceId);
-    // The location may contain a sourceId from another session (e.g. when the user clicks
-    // on a comment that has a source location), but a sourceId is not guaranteed
-    // to be stable across sessions (although most of the time it is).
-    // We try to work around this by comparing source URLs and, if they don't match,
-    // use the preferred source for the location's URL.
+    let source = getSourceDetails(getState(), location.sourceId);
+    // The location may contain a sourceId from another session (e.g. when the
+    // user clicks on a comment that has a source location), but a sourceId is
+    // not guaranteed to be stable across sessions (although most of the time it
+    // is). We try to work around this by comparing source URLs and, if they
+    // don't match, use the preferred source for the location's URL.
     if (location.sourceUrl && location.sourceUrl !== source?.url) {
       await ThreadFront.ensureAllSources();
       let sourceId = ThreadFront.getChosenSourceIdsForUrl(location.sourceUrl)[0].sourceId;
       sourceId = ThreadFront.getCorrespondingSourceIds(sourceId)[0];
-      source = getSource(getState(), sourceId);
+      source = getSourceDetails(getState(), sourceId);
       location = { ...location, sourceId };
     }
     if (!source) {
@@ -188,14 +174,14 @@ export function selectLocation(
       dispatch(setSelectedPanel("debugger"));
     }
 
-    await dispatch(loadSourceText({ source }));
-    await dispatch(setBreakableLines(cx, source.id));
+    dispatch(experimentalLoadSourceText(source.id));
+    dispatch(setBreakableLines(cx, source.id));
     // Set shownSource to null first, then the actual source to trigger
     // a proper re-render in the SourcesTree component
     dispatch(setShownSource(null));
     dispatch(setShownSource(source));
 
-    const loadedSource = getSource(getState(), source.id);
+    const loadedSource = getSourceDetails(getState(), source.id);
 
     if (!loadedSource) {
       // If there was a navigation while we were loading the loadedSource
