@@ -16,6 +16,7 @@ import debuggerActions from "devtools/client/debugger/src/actions";
 import { MarkupAction } from "devtools/client/inspector/markup/actions/markup";
 import UserProperties from "devtools/client/inspector/rules/models/user-properties";
 import * as consoleActions from "devtools/client/webconsole/actions";
+import * as analysisActions from "./analysis";
 import { QuickOpenActions } from "devtools/client/debugger/src/actions/quick-open";
 import { NetworkAction } from "./network";
 import { LayoutAction } from "./layout";
@@ -45,6 +46,7 @@ const { initialAppState, ...actualAppActions } = appActions;
 
 export const actions = {
   ...actualAppActions,
+  ...analysisActions,
   ...commentsActions,
   ...consoleActions,
   ...debuggerActions,

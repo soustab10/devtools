@@ -561,13 +561,10 @@ export const getAnalysisPointsForLocation = createSelector(
     // TODO `filterToFocusRegion` wants a pre-sorted array, but maybe a bit cheaper to filter first _then_ sort?
     finalPoints = focusRegion ? filterToFocusRegion(uniquePoints, focusRegion) : uniquePoints;
 
-    const {
-      analysisLoaded,
-      analysisErrored,
-      isFocusSubset,
-      analysisOverflowed,
-      hasAllDataForFocusRegion,
-    } = getStatusFlagsForAnalysisEntry(latestAnalysisEntry, focusRegion);
+    const { hasAllDataForFocusRegion } = getStatusFlagsForAnalysisEntry(
+      latestAnalysisEntry,
+      focusRegion
+    );
 
     return {
       data: finalPoints,
