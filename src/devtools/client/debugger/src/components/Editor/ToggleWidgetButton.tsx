@@ -16,11 +16,12 @@ import { AWESOME_BACKGROUND } from "./LineNumberTooltip";
 import { KeyModifiers, KeyModifiersContext } from "ui/components/KeyModifiers";
 import findLast from "lodash/findLast";
 import find from "lodash/find";
-import { getPointsForHoveredLineNumber } from "devtools/client/debugger/src/reducers/breakpoints";
+import { getPointsForHoveredLineNumber2 } from "devtools/client/debugger/src/reducers/breakpoints";
 import { compareNumericStrings } from "protocol/utils";
 import { getExecutionPoint } from "../../reducers/pause";
 import { seek } from "ui/actions/timeline";
 import { useFeature, useStringPref } from "ui/hooks/settings";
+import { exec } from "child_process";
 
 const QuickActionButton: FC<{
   showNag: boolean;
@@ -95,7 +96,7 @@ function QuickActions({
   const isMetaActive = keyModifiers.meta;
   const isShiftActive = keyModifiers.shift;
   const dispatch = useAppDispatch();
-  const analysisPoints = useAppSelector(getPointsForHoveredLineNumber);
+  const analysisPoints = useAppSelector(getPointsForHoveredLineNumber2);
   const executionPoint = useAppSelector(getExecutionPoint);
   const { nags } = hooks.useGetUserInfo();
   const showNag = shouldShowNag(nags, Nag.FIRST_BREAKPOINT_ADD);
@@ -109,7 +110,7 @@ function QuickActions({
 
   let next: PointDescription | undefined, prev: PointDescription | undefined;
 
-  let points = analysisPoints?.data;
+  let points = analysisPoints?.points || [];
   let error = analysisPoints?.error;
 
   if (points && !error && executionPoint) {
@@ -129,6 +130,8 @@ function QuickActions({
   };
 
   let button;
+
+  console.log("points", points?.length, keyModifiers);
 
   if (points && isMetaActive && isShiftActive) {
     button = (

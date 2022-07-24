@@ -14,6 +14,7 @@ import { getSelectedSource } from "../../reducers/sources";
 
 import StaticTooltip from "./StaticTooltip";
 import { fetchHitCounts, getHitCountsForSource } from "ui/reducers/hitCounts";
+import { fetchAnalysisPoints } from "ui/actions/logpoint";
 
 export const AWESOME_BACKGROUND = `linear-gradient(116.71deg, #FF2F86 21.74%, #EC275D 83.58%), linear-gradient(133.71deg, #01ACFD 3.31%, #F155FF 106.39%, #F477F8 157.93%, #F33685 212.38%), #007AFF`;
 
@@ -90,22 +91,30 @@ function LineNumberTooltip({ editor, keyModifiers }: Props) {
       if (lineNumber !== lastHoveredLineNumber.current) {
         lastHoveredLineNumber.current = lineNumber;
       }
+      if (isMetaActive) {
+        const firstHitCount = hitCounts?.find(
+          hitCount => hitCount.location.line === lineNumber
+        )?.location;
+        if (firstHitCount) {
+          fetchAnalysisPoints(firstHitCount);
+        }
+      }
       dispatch(updateHoveredLineNumber(lineNumber));
       dispatch(fetchHitCounts(source!.id, lastHoveredLineNumber.current));
       setTargetNode(lineNumberNode);
     };
+
     const clearHoveredLineNumber = () => {
       setTargetNode(null);
       dispatch(setHoveredLineNumberLocation(null));
     };
-
     editor.codeMirror.on("lineMouseEnter", setHoveredLineNumber);
     editor.codeMirror.on("lineMouseLeave", clearHoveredLineNumber);
     return () => {
       editor.codeMirror.off("lineMouseEnter", setHoveredLineNumber);
       editor.codeMirror.off("lineMouseLeave", clearHoveredLineNumber);
     };
-  }, [dispatch, editor.codeMirror, source]);
+  }, [dispatch, editor.codeMirror, source, isMetaActive, hitCounts]);
 
   useEffect(() => {
     if (hits) {

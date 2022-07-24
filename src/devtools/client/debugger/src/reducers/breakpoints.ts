@@ -593,3 +593,17 @@ export const getPointsForHoveredLineNumber = (state: UIState) => {
   const location = getHoveredLineNumberLocation(state);
   return getAnalysisPointsForLocation(state, location);
 };
+
+export const getPointsForHoveredLineNumber2 = (state: UIState) => {
+  const location = getHoveredLineNumberLocation(state);
+
+  if (!location) {
+    return undefined;
+  }
+  const locationKey = getLocationKey(location);
+  const analysis = Object.values(state.breakpoints.analyses.entities).find(
+    analysis => locationKey === (analysis && getLocationKey(analysis.location))
+  );
+
+  return analysis;
+};
