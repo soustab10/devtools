@@ -32,6 +32,14 @@ export default function SidePanel() {
       opened: !replayInfoCollapsed,
       onToggle: () => setReplayInfoCollapsed(!replayInfoCollapsed),
     },
+    {
+      header: "Events",
+      buttons: null,
+      className: "events-info flex-1 border-t overflow-hidden border-themeBorder",
+      component: <Events />,
+      opened: !eventsCollapsed,
+      onToggle: () => setEventsCollapsed(!eventsCollapsed),
+    }
   ];
 
   if (!!cypressResults) {
@@ -43,19 +51,10 @@ export default function SidePanel() {
       opened: !cypressCollapsed,
       onToggle: () => setCypressCollapsed(!setCypressCollapsed),
     });
-  } else {
-    items.push({
-      header: "Events",
-      buttons: null,
-      className: "events-info flex-1 border-t overflow-hidden border-themeBorder",
-      component: <Events />,
-      opened: !eventsCollapsed,
-      onToggle: () => setEventsCollapsed(!eventsCollapsed),
-    });
   }
-
+  
   return (
-    <div className="w-full overflow-hidden rounded-lg bg-bodyBgcolor text-xs">
+    <div className="w-full overflow-hidden text-xs rounded-lg bg-bodyBgcolor">
       {selectedPrimaryPanel === "explorer" && <PrimaryPanes />}
       {selectedPrimaryPanel === "debugger" && <SecondaryPanes />}
       {selectedPrimaryPanel === "comments" && <CommentCardsList />}
