@@ -126,7 +126,12 @@ export const executeCommandOperation = createAsyncThunk<
   const loadedRegions = getLoadedRegions(state)!;
   const nextPoint = getResumePoint(state, command)!;
 
-  await ThreadFront[command](nextPoint, loadedRegions);
+  const reponse = await ThreadFront[command](nextPoint, loadedRegions);
+
+  // TODO: map the locations... 
+  mapLocation(response.target.frame)
+
+  return response;
 });
 
 // Isn't this a lovely type lookup?

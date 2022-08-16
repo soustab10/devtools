@@ -574,8 +574,8 @@ class _ThreadFront {
   }
 
   async removeBreakpoint(initialSourceId: SourceId, line: number, column: number) {
-    await this.ensureAllSources();
-    const sourceIds = this.getCorrespondingSourceIds(initialSourceId);
+    // await this.ensureAllSources();
+    // const sourceIds = this.getCorrespondingSourceIds(initialSourceId);
     for (const [breakpointId, { location }] of this.breakpoints.entries()) {
       if (
         sourceIds.includes(location.sourceId) &&
@@ -591,10 +591,9 @@ class _ThreadFront {
     }
   }
 
-  removeBreakpointByURL(url: string, line: number, column: number) {
-    const sourceIds = this.getSourceToDisplayForUrl(url)?.correspondingSourceIds || [];
-    return Promise.all(sourceIds.map(sourceId => this.removeBreakpoint(sourceId, line, column)));
-  }
+  // removeBreakpointByURL(sourceIds: string[], line: number, column: number) {
+  //   return Promise.all(sourceIds.map(sourceId => this.removeBreakpoint(sourceId, line, column)));
+  // }
 
   ensurePause(point: ExecutionPoint, time: number) {
     assert(this.sessionId, "no sessionId");

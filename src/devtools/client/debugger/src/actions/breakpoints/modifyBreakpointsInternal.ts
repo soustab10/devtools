@@ -88,5 +88,14 @@ export function _internalRemoveBreakpoint(ThreadFront: typeof TF, location: Sour
   if (sourceId) {
     return ThreadFront.removeBreakpoint(sourceId, line, column!);
   }
-  return ThreadFront.removeBreakpointByURL(sourceUrl!, line, column!);
+  
+  // TODO: we should get the sourceIDs from redux here
+  //  const sourceIds = this.getSourceToDisplayForUrl(url)?.correspondingSourceIds || [];
+  // return getSourceToDisplayForUrl(url);
+
+  // Replace this one call 
+  // return ThreadFront.removeBreakpointByURL(sourceUrl!, line, column!);
+
+  // with calls to removeBreakpoint in its own module
+  romise.all(sourceIds.map(sourceId => removeBreakpoint(sourceId, line, column)));
 }
