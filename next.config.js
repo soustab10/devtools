@@ -178,4 +178,18 @@ const baseNextConfig = {
   },
 };
 
-module.exports = withPlugins([withTM, withBundleAnalyzer], baseNextConfig);
+const plugins = [withTM, withBundleAnalyzer];
+
+module.exports = (_phase, { defaultConfig }) => {
+  return plugins.reduce(
+    (acc, plugin) => {
+      if (Array.isArray(plugin)) {
+        return plugin[0](acc, plugin[1]);
+      }
+      return plugin(acc);
+    },
+    { ...baseNextConfig }
+  );
+};
+
+// module.exports = withPlugins([withTM, withBundleAnalyzer], baseNextConfig);
