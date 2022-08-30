@@ -38,6 +38,7 @@ import {
   PointRange,
   PauseId,
   PauseData,
+  Value,
 } from "@replayio/protocol";
 import groupBy from "lodash/groupBy";
 
@@ -545,6 +546,38 @@ class _ThreadFront {
     }
 
     return rv;
+  }
+
+  // Same as evaluate, but returns the result without wrapping a ValueFront around them.
+  // TODO Replace usages of evaluate with this.
+  async evaluateNew({
+    asyncIndex,
+    text,
+    frameId,
+    pure = false,
+  }: {
+    asyncIndex?: number;
+    text: string;
+    frameId?: FrameId;
+    pure?: boolean;
+  }) {
+    const pause = await this.pauseForAsyncIndex(asyncIndex);
+    assert(pause, "no pause for asyncIndex");
+
+    const rv = await pause.evaluate(frameId, text, pure);
+
+    if (repaintAfterEvaluationsExperimentalFlag) {
+      const { repaint } = await import("protocol/graphics");
+      repaint(true);
+    }
+
+    if (rv.returned) {
+      return { exception: null, returned: rv.returned as any as Value };
+    } else if (rv.exception) {
+      return { exception: rv.exception as any as Value, returned: null };
+    } else {
+      return { exception: null, returned: null };
+    }
   }
 
   // Perform an operation that will change our cached targets about where resume

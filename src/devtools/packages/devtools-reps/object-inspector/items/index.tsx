@@ -6,7 +6,9 @@ import { getPreferredLocation } from "ui/utils/preferredLocation";
 import { MODE } from "../../reps/constants";
 import ErrorRep from "../../reps/error";
 import PropRep from "../../reps/prop-rep";
-import { ObjectInspectorItemProps } from "../components/ObjectInspectorItem";
+
+// TODO (delete console) Are the methods that use this type still used?
+type ObjectInspectorItemProps = any;
 
 export * from "./utils";
 
