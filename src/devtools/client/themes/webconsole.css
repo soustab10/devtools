@@ -795,7 +795,6 @@ a.learn-more-link.webconsole-learn-more-link {
 /*
  * Make console.group, exception and XHR message's arrow look the same as the arrow
  * used in the ObjectInspector (same background-image, width, transition).
- * Properties were copied from devtools/client/shared/components/reps/reps.css.
  */
 .collapse-button {
   flex: none;

@@ -1,11 +1,12 @@
 import debounce from "lodash/debounce";
 import { getSelectedFrame } from "devtools/client/debugger/src/selectors";
-import { GETTERS_FROM_PROTOTYPES } from "devtools/packages/devtools-reps/object-inspector/items";
 import { ThreadFront } from "protocol/thread";
 import { useMemo } from "react";
 import { useAppSelector } from "ui/setup/hooks";
 import { getPropertiesForObject } from "ui/utils/autocomplete";
 import { Value } from "@replayio/protocol";
+
+const GETTERS_FROM_PROTOTYPES = 1;
 
 // Use eager eval to get the properties of the last complete object in the expression.
 export async function getEvaluatedProperties(

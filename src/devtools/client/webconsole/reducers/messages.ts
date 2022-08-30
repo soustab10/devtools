@@ -12,8 +12,6 @@ const { DEFAULT_FILTERS, FILTERS, MESSAGE_TYPE, MESSAGE_SOURCE } = constants;
 import type { ValueFront } from "protocol/thread";
 
 import { pointEquals } from "protocol/execution-point-utils";
-// TODO Disabled this for now to avoid circular imports
-// import { getGripPreviewItems } from "devtools/packages/devtools-reps";
 import { getUnicodeUrlPath } from "devtools/client/shared/unicode-url";
 import { getSourceNames } from "devtools/client/shared/source-utils";
 
@@ -628,14 +626,6 @@ function isTextInParameter(
   }
   visitedObjectIds = new Set(visitedObjectIds);
   visitedObjectIds.add(objectId);
-
-  // TODO Disable this for now to avoid circular imports
-  // const previewItems = getGripPreviewItems(parameter);
-  // for (const item of previewItems) {
-  //   if (isTextInParameter(matchStr, item, visitedObjectIds)) {
-  //     return true;
-  //   }
-  // }
 
   return false;
 }

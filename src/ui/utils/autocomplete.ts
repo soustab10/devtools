@@ -11,8 +11,9 @@ import {
 import generate from "@babel/generator";
 import { ValueFront } from "protocol/thread";
 import { WiredObject } from "protocol/thread/pause";
-import { GETTERS_FROM_PROTOTYPES } from "devtools/packages/devtools-reps/object-inspector/items";
 import { filter } from "fuzzaldrin-plus";
+
+const GETTERS_FROM_PROTOTYPES = 1;
 
 type PropertyExpression = {
   left: string;

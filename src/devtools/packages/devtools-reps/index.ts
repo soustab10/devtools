@@ -1,23 +1,49 @@
-import { MODE } from "./reps/constants";
-import { REPS, getRep, Rep } from "./reps/rep";
-import { getGripPreviewItems } from "./reps/rep-utils";
-import {
-  ValueItem,
-  ContainerItem,
-  LoadingItem,
-  Item,
-  KeyValueItem,
-} from "./object-inspector/items";
+export class ContainerItem {
+  _contents: any;
+  _name: string | undefined;
+  _path: string;
 
-export type { Item };
-export {
-  MODE,
-  REPS,
-  Rep,
-  getRep,
-  ContainerItem,
-  LoadingItem,
-  ValueItem,
-  KeyValueItem,
-  getGripPreviewItems,
-};
+  constructor({ contents, name, path }: { contents: any; name: string | undefined; path: string }) {
+    this._contents = contents;
+    this._name = name;
+    this._path = path;
+  }
+
+  get contents(): any {
+    return this._contents;
+  }
+
+  get name(): string | undefined {
+    return this._name;
+  }
+
+  get path(): string {
+    return this._path;
+  }
+}
+
+export class ValueItem {
+  _contents: any;
+  _name: string | undefined;
+  _path: string;
+
+  constructor({ contents, name, path }: { contents: any; name: string | undefined; path: string }) {
+    this._contents = contents;
+    this._name = name;
+    this._path = path;
+  }
+
+  get contents(): any {
+    return this._contents;
+  }
+
+  get name(): string | undefined {
+    return this._name;
+  }
+
+  get path(): string {
+    return this._path;
+  }
+}
+
+export type Item = ContainerItem | ValueItem;
