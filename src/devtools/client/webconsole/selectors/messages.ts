@@ -15,12 +15,8 @@ const { MESSAGE_TYPE } = require("devtools/client/webconsole/constants");
 const { getCurrentTime, getFocusRegion } = require("ui/reducers/timeline");
 const { getExecutionPoint } = require("devtools/client/debugger/src/reducers/pause");
 
-export const getAllMessagesUiById = (state: UIState) => state.messages.messagesUiById;
 export const getCommandHistory = (state: UIState) => state.messages.commandHistory;
 export const getFilteredMessagesCount = (state: UIState) => state.messages.filteredMessagesCount;
-export const getMessagesLoaded = (state: UIState) => state.messages.messagesLoaded;
-export const getLastMessageId = (state: UIState) =>
-  state.messages.messages.ids[state.messages.messages.ids.length - 1];
 export const getAllFilters = (state: UIState) => state.messages.filters;
 
 export function getAllMessagesById(state: UIState) {

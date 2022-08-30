@@ -5,10 +5,6 @@
 export { toggleTimestamps } from "devtools/client/webconsole/reducers/ui";
 export {
   clearMessages,
-  logpointMessagesCleared,
-  messageClosed,
-  messageEvaluationsCleared,
-  messageOpened,
   messagesAdded,
   filterTextUpdated,
   filterToggled,

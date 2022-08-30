@@ -219,12 +219,6 @@ const messagesSlice = createSlice({
         }
       });
     },
-    messageOpened(state, action: PayloadAction<MessageId>) {
-      state.messagesUiById.push(action.payload);
-    },
-    messageClosed(state, action: PayloadAction<MessageId>) {
-      state.messagesUiById = state.messagesUiById.filter(id => id !== action.payload);
-    },
     messageEvaluationsCleared(state) {
       const removedIds: MessageId[] = [];
       for (let maybeMessage of Object.values(state.messages.entities)) {
@@ -238,20 +232,6 @@ const messagesSlice = createSlice({
       if (removedIds.length === 0) {
         return;
       }
-
-      return removeMessagesFromState(state as MessageState, removedIds);
-    },
-    logpointMessagesCleared(state, action: PayloadAction<string>) {
-      const logpointId = action.payload;
-      const removedIds = [];
-
-      for (const [id, message] of Object.entries(state.messages.entities)) {
-        if (message!.logpointId == logpointId) {
-          removedIds.push(id);
-        }
-      }
-
-      state.removedLogpointIds = Array.from(new Set([...state.removedLogpointIds, logpointId]));
 
       return removeMessagesFromState(state as MessageState, removedIds);
     },
@@ -319,10 +299,7 @@ const messagesSlice = createSlice({
 
 export const {
   clearMessages,
-  logpointMessagesCleared,
-  messageClosed,
   messageEvaluationsCleared,
-  messageOpened,
   messagesAdded,
   filterTextUpdated,
   filterToggled,

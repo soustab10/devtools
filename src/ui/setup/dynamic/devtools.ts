@@ -10,7 +10,6 @@ import * as dbgClient from "devtools/client/debugger/src/client";
 import debuggerReducers from "devtools/client/debugger/src/reducers";
 import { bootstrapWorkers } from "devtools/client/debugger/src/utils/bootstrap";
 import { setupDebuggerHelper } from "devtools/client/debugger/src/utils/dbg";
-import { setupMessages } from "devtools/client/webconsole/actions/messages";
 import { setupNetwork } from "devtools/client/webconsole/actions/network";
 import consoleReducers from "devtools/client/webconsole/reducers";
 import { getConsoleInitialState } from "devtools/client/webconsole/store";
@@ -234,7 +233,6 @@ export default async function setupDevtools(store: AppStore, replayClient: Repla
   setupEventListeners(store);
   setupGraphics();
   initOutputSyntaxHighlighting();
-  setupMessages(store, ThreadFront);
   setupNetwork(store, ThreadFront);
   setupLogpoints(store);
   setupExceptions(store);
