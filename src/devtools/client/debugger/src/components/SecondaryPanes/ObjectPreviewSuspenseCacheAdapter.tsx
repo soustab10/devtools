@@ -3,20 +3,13 @@ import { trackExecutionPointPauseIds } from "@bvaughn/src/suspense/PauseCache";
 import { ExecutionPoint, PauseData, PauseId } from "@replayio/protocol";
 import { addPauseDataListener, removePauseDataListener } from "protocol/thread/pause";
 import { useLayoutEffect } from "react";
-import { useFeature } from "ui/hooks/settings";
 
 // Connects legacy PauseData to the new Object Inspector Suspense cache.
 // This avoids requiring the new Object Inspector to load redundant data.
 export default function ObjectPreviewSuspenseCacheAdapter() {
-  const disableNewComponentArchitecture = useFeature("disableNewComponentArchitecture");
-
   // It's important to not miss pre-cached data because there's no way to access it after the fact.
   // So use a layout effect for subscription rather than a passive effect.
   useLayoutEffect(() => {
-    if (disableNewComponentArchitecture) {
-      return;
-    }
-
     const handler = (pauseId: PauseId, executionPoint: ExecutionPoint, pauseData: PauseData) => {
       const { objects } = pauseData;
       if (objects) {
@@ -33,7 +26,7 @@ export default function ObjectPreviewSuspenseCacheAdapter() {
     return () => {
       removePauseDataListener(handler);
     };
-  }, [disableNewComponentArchitecture]);
+  }, []);
 
   return null;
 }

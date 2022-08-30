@@ -6,7 +6,6 @@ import {
   highlightDomElement,
   unHighlightDomElement,
 } from "devtools/client/webconsole/actions/toolbox";
-import { ObjectInspector } from "devtools/packages/devtools-reps";
 import type { ContainerItem, ValueItem } from "devtools/packages/devtools-reps";
 import React, { PureComponent } from "react";
 import { connect, ConnectedProps } from "react-redux";
@@ -14,10 +13,7 @@ import { enterFocusMode as enterFocusModeAction } from "ui/actions/timeline";
 import { Redacted } from "ui/components/Redacted";
 import { isCurrentTimeInLoadedRegion } from "ui/reducers/app";
 import { getCurrentTime } from "ui/reducers/timeline";
-import { trackEvent } from "ui/utils/telemetry";
 import { formatTimestamp } from "ui/utils/time";
-import { prefs as prefsService } from "devtools/shared/services";
-import type { PauseFrame, ConvertedScope } from "devtools/client/debugger/src/reducers/pause";
 
 import {
   getSelectedFrame,
@@ -89,33 +85,12 @@ class Scopes extends PureComponent<PropsFromRedux, ScopesState> {
       s.path = `scope${selectedFrame?.id}.${i}`;
     });
 
-    const disableNewComponentArchitecture = prefsService.getBoolPref(
-      "devtools.features.disableNewComponentArchitecture"
-    );
-    let objectInspector = null;
-    if (disableNewComponentArchitecture) {
-      objectInspector = (
-        <ObjectInspector
-          roots={scopes!}
-          autoExpandAll={false}
-          autoExpandDepth={1}
-          disableWrap={true}
-          onDOMNodeClick={(grip: any) => openElementInInspector(grip)}
-          onInspectIconClick={(grip: any) => openElementInInspector(grip)}
-          onDOMNodeMouseOver={(grip: any) => highlightDomElement(grip)}
-          onDOMNodeMouseOut={(grip: any) => unHighlightDomElement()}
-        />
-      );
-    } else {
-      objectInspector = <NewObjectInspector roots={scopes!} />;
-    }
-
     return (
       <Redacted className="pane scopes-list" data-test-name="ScopesList">
         {originalScopesUnavailable ? (
           <div className="warning">The variables could not be mapped to their original names</div>
         ) : null}
-        {objectInspector}
+        <NewObjectInspector roots={scopes!} />
       </Redacted>
     );
   }
