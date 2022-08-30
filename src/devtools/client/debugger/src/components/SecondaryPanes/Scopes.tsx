@@ -2,10 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at <http://mozilla.org/MPL/2.0/>. */
 
-import {
-  highlightDomElement,
-  unHighlightDomElement,
-} from "devtools/client/webconsole/actions/toolbox";
 import type { ContainerItem, ValueItem } from "devtools/packages/devtools-reps";
 import React, { PureComponent } from "react";
 import { connect, ConnectedProps } from "react-redux";
@@ -22,7 +18,6 @@ import {
   getThreadContext,
   getFramesLoading,
 } from "../../selectors";
-import { openLink, openNodeInInspector } from "devtools/client/webconsole/actions/toolbox";
 import { getScopes } from "../../utils/pause/scopes";
 import NewObjectInspector from "./NewObjectInspector";
 import { UIState } from "ui/state";
@@ -68,15 +63,7 @@ class Scopes extends PureComponent<PropsFromRedux, ScopesState> {
   }
 
   renderScopesList() {
-    const {
-      cx,
-      openLink,
-      openElementInInspector,
-      highlightDomElement,
-      unHighlightDomElement,
-      selectedFrame,
-      originalScopesUnavailable,
-    } = this.props;
+    const { originalScopesUnavailable, selectedFrame } = this.props;
     const { scopes } = this.state;
 
     scopes!.forEach((s, i) => {
@@ -168,10 +155,6 @@ const mapStateToProps = (state: UIState) => {
 
 const connector = connect(mapStateToProps, {
   enterFocusMode: enterFocusModeAction,
-  openLink,
-  openElementInInspector: openNodeInInspector,
-  highlightDomElement,
-  unHighlightDomElement,
 });
 type PropsFromRedux = ConnectedProps<typeof connector>;
 

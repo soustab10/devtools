@@ -5,14 +5,14 @@ import Loader from "@bvaughn/components/Loader";
 import "@bvaughn/pages/variables.css";
 import { clientValueToProtocolNamedValue } from "@bvaughn/src/utils/protocol";
 import { NamedValue as ProtocolNamedValue } from "@replayio/protocol";
-import { ContainerItem, ValueItem } from "devtools/packages/devtools-reps";
 import InspectorContextReduxAdapter from "devtools/client/debugger/src/components/shared/InspectorContextReduxAdapter";
 import { ThreadFront } from "protocol/thread";
 import { ReactNode, Suspense, useMemo } from "react";
 
 import styles from "./NewObjectInspector.module.css";
 
-export default function NewObjectInspector({ roots }: { roots: Array<ContainerItem | ValueItem> }) {
+// TODO (delete console) Add better types for roots
+export default function NewObjectInspector({ roots }: { roots: any[] }) {
   const pause = ThreadFront.currentPause;
 
   // HACK
@@ -26,9 +26,11 @@ export default function NewObjectInspector({ roots }: { roots: Array<ContainerIt
 
     const children: ReactNode[] = [];
 
-    roots.forEach((root: ContainerItem | ValueItem, index) => {
+    roots.forEach((root: any, index) => {
       switch (root.type) {
         case "container": {
+          // TODO (delete console) root is not a type that clientValueToProtocolNamedValue() was written for
+          // We should create a different adapter function for this
           const protocolValues: ProtocolNamedValue[] = root.contents.map(
             clientValueToProtocolNamedValue
           );

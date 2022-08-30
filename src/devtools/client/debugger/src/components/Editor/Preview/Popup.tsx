@@ -46,17 +46,6 @@ export class Popup extends Component<FinalPopupProps> {
     return 250;
   };
 
-  renderPreview() {
-    // We don't have to check and
-    // return on `false`, `""`, `0`, `undefined` etc,
-    // these falsy simple typed value because we want to
-    // do `renderSimplePreview` on these values below.
-    const { preview } = this.props;
-    const { root } = preview!;
-
-    return <NewObjectInspector />;
-  }
-
   getPreviewType() {
     const { preview } = this.props;
     const { root } = preview!;
@@ -89,7 +78,7 @@ export class Popup extends Component<FinalPopupProps> {
         target={this.props.preview!.target}
         mouseout={this.onMouseOut}
       >
-        {this.renderPreview()}
+        <NewObjectInspector />
       </Popover>
     );
   }
