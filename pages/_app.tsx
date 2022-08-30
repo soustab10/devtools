@@ -93,7 +93,6 @@ import "devtools/client/themes/splitters.css";
 import "devtools/client/themes/toolbars.css";
 import "devtools/client/themes/tooltips.css";
 import "devtools/client/themes/webconsole.css";
-import "devtools/client/webconsole/components/App.css";
 import "devtools/client/webconsole/components/FilterBar/Events.css";
 import "devtools/server/actors/highlighters.css";
 import "ui/components/App.css";

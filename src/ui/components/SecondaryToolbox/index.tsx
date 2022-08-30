@@ -2,7 +2,6 @@ import LazyOffscreen from "@bvaughn/components/LazyOffscreen";
 import React, { FC, ReactNode, useContext } from "react";
 import { useAppDispatch, useAppSelector } from "ui/setup/hooks";
 import classnames from "classnames";
-import WebConsoleApp from "devtools/client/webconsole/components/App";
 
 import NodePicker from "../NodePicker";
 import { selectors } from "../../reducers";
@@ -93,7 +92,7 @@ function ConsolePanel() {
   return (
     <div className="toolbox-bottom-panels">
       <div className={classnames("toolbox-panel")} id="toolbox-content-console">
-        {disableNewComponentArchitecture ? <WebConsoleApp /> : <NewConsoleRoot />}
+        <NewConsoleRoot />
       </div>
     </div>
   );
