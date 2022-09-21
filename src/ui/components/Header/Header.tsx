@@ -1,5 +1,5 @@
 import { RecordingId } from "@replayio/protocol";
-import React, { useLayoutEffect, useRef, useState } from "react";
+import React, { useLayoutEffect, useEffect, useRef, useState } from "react";
 
 import { connect, ConnectedProps } from "react-redux";
 import * as selectors from "ui/reducers/app";
@@ -17,6 +17,8 @@ import { UIState } from "ui/state";
 import classNames from "classnames/bind";
 import { RecordingTrialEnd } from "./RecordingTrialEnd";
 import { trackEvent } from "ui/utils/telemetry";
+import { shouldShowNag } from "ui/utils/user";
+import { Nag } from "ui/hooks/users";
 
 import css from "./Header.module.css";
 const cx = classNames.bind(css);
@@ -48,11 +50,12 @@ function Avatars({ recordingId }: { recordingId: RecordingId | null }) {
 function Links({ recordingTarget }: Pick<PropsFromRedux, "recordingTarget">) {
   const recordingId = hooks.useGetRecordingId();
   const { isAuthenticated } = useAuth0();
+  const { nags } = hooks.useGetUserInfo();
 
   return (
     <div className={css.links}>
       <RecordingTrialEnd />
-      {isAuthenticated ? <ShareButton /> : null}
+      {!shouldShowNag(nags, Nag.VIEW_DEVTOOLS) && isAuthenticated ? <ShareButton /> : null}
       <Avatars recordingId={recordingId} />
       {recordingTarget != "node" && <ViewToggle />}
       <UserOptions />
