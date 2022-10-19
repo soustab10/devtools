@@ -24,7 +24,7 @@ const baseNextConfig = {
   // bumping Next from 12.0.9 to 12.1.0 required this as a temp WAR
   // (see https://github.com/vercel/next.js/pull/34500)
   experimental: {
-    browsersListForSwc: true,
+    // browsersListForSwc: true,
   },
 
   eslint: {
@@ -36,6 +36,7 @@ const baseNextConfig = {
   },
 
   productionBrowserSourceMaps: true,
+  swcMinify: true,
 
   async redirects() {
     return [
@@ -200,4 +201,8 @@ const baseNextConfig = {
   },
 };
 
-module.exports = withPlugins([withTM, withBundleAnalyzer], baseNextConfig);
+// module.exports = withPlugins([withTM, withBundleAnalyzer], baseNextConfig);
+
+const plugins = [withTM, withBundleAnalyzer];
+
+module.exports = async phase => withPlugins(plugins, baseNextConfig)(phase, { undefined });
