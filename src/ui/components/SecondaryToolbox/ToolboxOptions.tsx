@@ -3,6 +3,8 @@ import { useAppDispatch, useAppSelector } from "ui/setup/hooks";
 import { ToolboxLayout } from "ui/state/layout";
 import { getToolboxLayout } from "ui/reducers/layout";
 import { setToolboxLayout } from "ui/actions/layout";
+import { getRecordingTarget } from "ui/reducers/app";
+
 import Icon from "../shared/Icon";
 import PortalDropdown from "../shared/PortalDropdown";
 import { Dropdown, DropdownItem } from "../Library/LibraryDropdown";
@@ -64,12 +66,11 @@ export default function ToolboxOptions() {
   const [expanded, setExpanded] = useState(false);
   const button = <Icon filename={LAYOUT_ICONS[toolboxLayout]} className="bg-iconColor" />;
   const collapseDropdown = () => setExpanded(false);
-
-  const recordingCapabilities = getRecordingCapabilities();
+  const recordingTarget = useAppSelector(getRecordingTarget);
 
   let layoutOptions: ReactNode = null;
 
-  if (recordingCapabilities.supportsRepaintingGraphics) {
+  if (recordingTarget !== "node") {
     layoutOptions = (
       <>
         <LayoutOption
