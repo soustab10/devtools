@@ -5,15 +5,16 @@ import { ReplayUpdatedError } from "ui/components/ErrorBoundary";
 import { Redacted } from "ui/components/Redacted";
 import { useFeature } from "ui/hooks/settings";
 import { getToolboxLayout } from "ui/reducers/layout";
+import { getSelectedSource } from "ui/reducers/sources";
 import { useAppDispatch, useAppSelector } from "ui/setup/hooks";
 import useWidthObserver from "ui/utils/useWidthObserver";
 
-import { getSelectedSource } from "ui/reducers/sources";
 import { waitForEditor } from "../../utils/editor/create-editor";
 
 import WelcomeBox from "../WelcomeBox";
 
 import Editor from "./index";
+import NewSourceAdapter from "./NewSourceAdapter";
 import EditorTabs from "./Tabs";
 import EditorFooter from "./Footer";
 
@@ -24,6 +25,7 @@ export const EditorPane = () => {
   const selectedSource = useAppSelector(getSelectedSource);
   const panelEl = useRef(null);
   const { value: enableLargeText } = useFeature("enableLargeText");
+  const { value: enableNewSourceViewer } = useFeature("newSourceViewer");
 
   const nodeWidth = useWidthObserver(panelEl);
 
@@ -62,8 +64,8 @@ export const EditorPane = () => {
       <div className="editor-container relative">
         <EditorTabs />
         {selectedSource ? (
-          <Redacted>
-            <Editor />
+          <Redacted className="h-full">
+            {enableNewSourceViewer ? <NewSourceAdapter /> : <Editor />}
           </Redacted>
         ) : (
           <WelcomeBox />
