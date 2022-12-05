@@ -1,13 +1,19 @@
 import { Object as ProtocolObject } from "@replayio/protocol";
 import cloneDeep from "lodash/cloneDeep";
-import React, { createContext, useContext, useMemo, useState } from "react";
+import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 import ErrorBoundary from "bvaughn-architecture-demo/components/ErrorBoundary";
 import PropertiesRenderer from "bvaughn-architecture-demo/components/inspector/PropertiesRenderer";
 import { getRecordingDuration } from "ui/actions/app";
 import { setFocusRegion } from "ui/actions/timeline";
 import MaterialIcon from "ui/components/shared/MaterialIcon";
-import { getReporterAnnotationsForTests, setSelectedStep } from "ui/reducers/reporter";
+import {
+  getReporterAnnotationsForTests,
+  getSelectedTest,
+  setSelectedStep,
+  setSelectedTest,
+} from "ui/reducers/reporter";
+import { getFocusRegion } from "ui/reducers/timeline";
 import { useAppDispatch, useAppSelector } from "ui/setup/hooks";
 import { Annotation, TestItem } from "ui/types";
 
@@ -31,15 +37,9 @@ function maybeCorrectTestTimes(testCases: TestItem[], annotations: Annotation[])
   }));
 }
 
-export default function TestInfo({
-  testCases,
-  highlightedTest,
-  setHighlightedTest,
-}: {
-  testCases: TestItem[];
-  highlightedTest: number | null;
-  setHighlightedTest: (test: number | null) => void;
-}) {
+export default function TestInfo({ testCases }: { testCases: TestItem[] }) {
+  const focusRegion = useAppSelector(getFocusRegion);
+  const selectedTest = useAppSelector(getSelectedTest);
   const [consoleProps, setConsoleProps] = useState<ProtocolObject>();
   const [pauseId, setPauseId] = useState<string | null>(null);
   const dispatch = useAppDispatch();
@@ -54,11 +54,11 @@ export default function TestInfo({
   );
 
   const showTest = (index: number) => {
-    return highlightedTest === null || highlightedTest === index;
+    return selectedTest === null || selectedTest === index;
   };
 
   const onReset = () => {
-    setHighlightedTest(null);
+    dispatch(setSelectedTest(null));
     dispatch(setSelectedStep(null));
     dispatch(
       setFocusRegion({
@@ -69,6 +69,24 @@ export default function TestInfo({
     setPauseId(null);
     setConsoleProps(undefined);
   };
+
+  useEffect(() => {
+    if (focusRegion?.beginTime && focusRegion?.endTime && !selectedTest) {
+      const matchingTestIndex = correctedTestCases.findIndex(t => {
+        const startTime = t.relativeStartTime;
+        const endTime = t.relativeStartTime + t.duration;
+
+        return startTime === focusRegion.beginTime && endTime === focusRegion.endTime;
+      });
+
+      console.log({ matchingTestIndex });
+
+      if (matchingTestIndex >= 0) {
+        dispatch(setSelectedTest(matchingTestIndex));
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (!annotations) {
     return (
@@ -83,29 +101,21 @@ export default function TestInfo({
       <TestInfoContextMenuContextRoot>
         <div className="flex flex-grow flex-col overflow-hidden">
           <div className="flex flex-grow flex-col space-y-1 overflow-auto px-2 py-2">
-            {highlightedTest !== null && (
+            {selectedTest !== null && (
               <button
                 onClick={onReset}
                 className="flex flex-row items-center hover:underline"
                 style={{ fontSize: "15px" }}
               >
                 <MaterialIcon>chevron_left</MaterialIcon>
-                <div>{correctedTestCases[highlightedTest].title}</div>
+                <div>{correctedTestCases[selectedTest].title}</div>
               </button>
             )}
             {correctedTestCases.map(
-              (t, i) =>
-                showTest(i) && (
-                  <TestCase
-                    test={t}
-                    key={i}
-                    setHighlightedTest={() => setHighlightedTest(i)}
-                    isHighlighted={i === highlightedTest}
-                  />
-                )
+              (t, i) => showTest(i) && <TestCase test={t} key={i} index={i} />
             )}
           </div>
-          {highlightedTest ? <Console /> : null}
+          {selectedTest ? <Console /> : null}
           <ContextMenuWrapper />
         </div>
       </TestInfoContextMenuContextRoot>

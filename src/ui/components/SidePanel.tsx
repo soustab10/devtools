@@ -43,7 +43,6 @@ export default function SidePanel() {
 
   const [replayInfoCollapsed, setReplayInfoCollapsed] = useState(false);
   const [eventsCollapsed, setEventsCollapsed] = useState(false);
-  const [highlightedTest, setHighlightedTest] = useState<number | null>(null);
 
   const items: any[] = [];
 
@@ -78,8 +77,6 @@ export default function SidePanel() {
       {selectedPrimaryPanel === "events" && (
         <EventsPane
           items={items}
-          highlightedTest={highlightedTest}
-          setHighlightedTest={setHighlightedTest}
         />
       )}
       {selectedPrimaryPanel === "protocol" && <ProtocolViewer />}
@@ -90,12 +87,8 @@ export default function SidePanel() {
 
 function EventsPane({
   items,
-  highlightedTest,
-  setHighlightedTest,
 }: {
   items: any[];
-  highlightedTest: number | null;
-  setHighlightedTest: (test: number | null) => void;
 }) {
   const recordingId = useGetRecordingId();
   const { recording } = useGetRecording(recordingId);
@@ -109,8 +102,6 @@ function EventsPane({
         </div>
         <TestInfo
           testCases={recording?.metadata?.test.tests}
-          highlightedTest={highlightedTest}
-          setHighlightedTest={setHighlightedTest}
         />
       </div>
     );
