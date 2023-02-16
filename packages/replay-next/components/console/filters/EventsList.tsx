@@ -1,5 +1,14 @@
-import { ChangeEvent, Suspense, useContext, useMemo, useState, useTransition } from "react";
+import {
+  ChangeEvent,
+  Suspense,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+  useTransition,
+} from "react";
 
+import useEventTypeEntryPointsSuspenseStatus from "replay-next/components/console/hooks/useEventCategoryCountsStatus";
 import Loader from "replay-next/components/Loader";
 import { FocusContext } from "replay-next/src/contexts/FocusContext";
 import { getEventCategoryCountsSuspense } from "replay-next/src/suspense/EventsCache";
@@ -52,6 +61,8 @@ function EventsListCategories({
   const pointRange = range ? { begin: range.begin.point, end: range.end.point } : null;
   const eventCategoryCounts = getEventCategoryCountsSuspense(pointRange, client);
 
+  const status = useEventTypeEntryPointsSuspenseStatus();
+
   const [commonEventCategories, otherEventCategories] = useMemo<
     [EventCategoryType[], EventCategoryType[]]
   >(() => {
@@ -73,26 +84,44 @@ function EventsListCategories({
     return [commonEventCategories, otherEventCategories];
   }, [eventCategoryCounts]);
 
+  const [eventCategoryExpandedState, setEventCategoryExpandedState] = useState<
+    Map<string, boolean>
+  >(new Map());
+
+  const toggleExpanded = useCallback((category: string, expanded: boolean) => {
+    setEventCategoryExpandedState(prevState => {
+      const cloned = new Map(prevState.entries());
+      cloned.set(category, expanded);
+      return cloned;
+    });
+  }, []);
+
+  const showPending = status === "pending" || status === undefined;
+
   return (
-    <>
+    <div className={showPending ? styles.EventsListInnerPending : styles.EventsListInner}>
       <div className={styles.Header}>Common Events</div>
       {commonEventCategories.map(eventCategory => (
         <EventCategory
           key={eventCategory.category}
+          defaultOpen={eventCategoryExpandedState.get(eventCategory.category) ?? false}
           disabled={isPending}
           eventCategory={eventCategory}
           filterByText={filterByText}
+          onChange={expanded => toggleExpanded(eventCategory.category, expanded)}
         />
       ))}
       <div className={styles.Header}>Other Events</div>
       {otherEventCategories.map(eventCategory => (
         <EventCategory
           key={eventCategory.category}
+          defaultOpen={eventCategoryExpandedState.get(eventCategory.category) ?? false}
           disabled={isPending}
           eventCategory={eventCategory}
           filterByText={filterByText}
+          onChange={expanded => toggleExpanded(eventCategory.category, expanded)}
         />
       ))}
-    </>
+    </div>
   );
 }

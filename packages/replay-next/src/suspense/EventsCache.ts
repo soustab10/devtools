@@ -14,10 +14,8 @@ import { AnalysisInput, SendCommand, getFunctionBody } from "protocol/evaluation
 import { ReplayClientInterface } from "shared/client/types";
 
 import { STANDARD_EVENT_CATEGORIES } from "../constants";
-import { createWakeable } from "../utils/suspense";
 import { createGenericCache } from "./createGenericCache";
 import { cachePauseData } from "./PauseCache";
-import { Record, STATUS_PENDING, STATUS_REJECTED, STATUS_RESOLVED, Wakeable } from "./types";
 
 export type Event = {
   count: number;
@@ -44,9 +42,11 @@ export type EventLog = {
 };
 
 export const {
+  getStatus: getEventCategoryCountsStatus,
   getValueSuspense: getEventCategoryCountsSuspense,
   getValueAsync: getEventCategoryCountsAsync,
   getValueIfCached: getEventCategoryCountsIfCached,
+  subscribeToStatus: subscribeToEventCategoryCountsStatus,
 } = createGenericCache<
   [client: ReplayClientInterface],
   [range: PointRange | null],
@@ -73,83 +73,50 @@ export const {
   range => (range ? `${range.begin}:${range.end}` : "")
 );
 
-let eventTypeToEntryPointMap = new Map<EventHandlerType, Record<EventLog[]>>();
-
-export function getEventTypeEntryPointsSuspense(
-  client: ReplayClientInterface,
-  eventType: EventHandlerType
-): EventLog[] {
-  let record = eventTypeToEntryPointMap.get(eventType);
-  if (record == null) {
-    record = {
-      status: STATUS_PENDING,
-      value: createWakeable<EventLog[]>("getEventTypeEntryPointsSuspense"),
-    };
-
-    eventTypeToEntryPointMap.set(eventType, record);
-
-    fetchEventTypeEntryPoints(client, eventType, record);
-  }
-
-  if (record.status === STATUS_RESOLVED) {
-    return record.value;
-  } else {
-    throw record.value;
-  }
-}
-
-async function fetchEventTypeEntryPoints(
-  client: ReplayClientInterface,
-  eventType: EventHandlerType,
-  record: Record<EventLog[]>
-) {
-  const wakeable = record.value;
-  try {
-    const entryPoints = await client.runAnalysis<EventLog>({
+// TODO [FE-1257] This would ideally use Holger's new range cache (once it lands)
+export const {
+  getStatus: getEventTypeEntryPointsStatus,
+  getValueSuspense: getEventTypeEntryPointsSuspense,
+  getValueAsync: getEventTypeEntryPointsAsync,
+  getValueIfCached: getEventTypeEntryPointsIfCached,
+  subscribeToStatus: subscribeToEventTypeEntryPointsStatus,
+} = createGenericCache<
+  [replayClient: ReplayClientInterface],
+  [eventType: EventHandlerType, pointRange: PointRange | null],
+  EventLog[]
+>(
+  "CommentsCache: getCommentsGraphQL",
+  1,
+  async (
+    replayClient: ReplayClientInterface,
+    eventType: EventHandlerType,
+    pointRange: PointRange | null
+  ) => {
+    const entryPoints = await replayClient.runAnalysis<EventLog>({
       effectful: false,
       eventHandlerEntryPoints: [{ eventType }],
       mapper: getFunctionBody(eventsMapper),
+      range: pointRange || undefined,
     });
 
     // Pre-cache object previews that came back with our new analysis data.
     // This will avoid us having to turn around and request them again when rendering the logs.
-    entryPoints.forEach(entryPoint => cachePauseData(client, entryPoint.pauseId, entryPoint.data));
+    entryPoints.forEach(entryPoint =>
+      cachePauseData(replayClient, entryPoint.pauseId, entryPoint.data)
+    );
 
     const eventLogs: EventLog[] = entryPoints.map(entryPoint => ({
       ...entryPoint,
       type: "EventLog",
     }));
 
-    record.status = STATUS_RESOLVED;
-    record.value = eventLogs;
-  } catch (err) {
-    // Handle any analysis errors (such as "too many hits found") by resolving the record with
-    // a dummy `EventLog` entry that will get shown as a single console message at the top of
-    // the list.  That way we at least communicate to the user what happened.
-    // TODO [FE-1257] Show a better indicator that there were too many events found, like an overlay.
-    record.status = STATUS_RESOLVED;
-    record.value = [
-      {
-        data: {
-          frames: [],
-          objects: [],
-        },
-        location: [],
-        pauseId: "",
-        point: "",
-        time: 0,
-        type: "EventLog",
-        values: [
-          {
-            value: `❗Too many messages of type "${eventType}" found!`,
-          },
-        ],
-      },
-    ];
-  } finally {
-    wakeable.resolve(record.value);
+    return eventLogs;
+  },
+  (eventType: EventHandlerType, pointRange: PointRange | null) => {
+    const rangeString = pointRange ? `${pointRange.begin}-${pointRange.end}` : "-";
+    return `${eventType}:${rangeString}`;
   }
-}
+);
 
 // Variables in scope in an analysis
 declare let sendCommand: SendCommand;

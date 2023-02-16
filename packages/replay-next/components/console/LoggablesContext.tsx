@@ -19,10 +19,15 @@ import { getHitPointsForLocationSuspense } from "replay-next/src/suspense/HitPoi
 import { ProtocolMessage, getMessagesSuspense } from "replay-next/src/suspense/MessagesCache";
 import { loggableSort } from "replay-next/src/utils/loggables";
 import { isInNodeModules } from "replay-next/src/utils/messages";
-import { suspendInParallel } from "replay-next/src/utils/suspense";
+import { createInfallibleSuspenseCache, suspendInParallel } from "replay-next/src/utils/suspense";
 import { isExecutionPointsWithinRange } from "replay-next/src/utils/time";
 import { ReplayClientContext } from "shared/client/ReplayClientContext";
 import { POINT_BEHAVIOR_ENABLED } from "shared/client/types";
+import { toPointRange } from "shared/utils/time";
+
+const getEventTypeEntryPointsSuspenseInfallible = createInfallibleSuspenseCache(
+  getEventTypeEntryPointsSuspense
+);
 
 export type Loggable =
   | EventLog
@@ -76,10 +81,15 @@ export function LoggablesContextRoot({
 
   // Load the event type data from the protocol and flatten into a single array (to be filtered and sorted below).
   const eventLogs = useMemo<EventLog[]>(() => {
+    const pointRange = focusRange ? toPointRange(focusRange) : null;
+
     return suspendInParallel(
-      ...eventTypesToLoad.map(eventType => () => getEventTypeEntryPointsSuspense(client, eventType))
+      ...eventTypesToLoad.map(
+        eventType => () =>
+          getEventTypeEntryPointsSuspenseInfallible(client, eventType, pointRange) ?? []
+      )
     ).flat();
-  }, [client, eventTypesToLoad]);
+  }, [client, eventTypesToLoad, focusRange]);
 
   const { messages } = getMessagesSuspense(client, focusRange);
 
@@ -127,18 +137,6 @@ export function LoggablesContextRoot({
   if (showExceptions) {
     exceptions = getExceptionsSuspense(client, focusRange);
   }
-
-  // Trim eventLogs and logPoints by focusRange.
-  // Messages will have already been filtered from the backend.
-  const focusedEventLogs = useMemo<EventLog[]>(() => {
-    if (focusRange === null) {
-      return eventLogs;
-    } else {
-      return eventLogs.filter(eventLog =>
-        isExecutionPointsWithinRange(eventLog.point, focusRange.begin.point, focusRange.end.point)
-      );
-    }
-  }, [eventLogs, focusRange]);
 
   const pointInstances = useMemo<PointInstance[]>(() => {
     const pointInstances: PointInstance[] = [];
@@ -193,20 +191,14 @@ export function LoggablesContextRoot({
 
   const sortedLoggables = useMemo<Loggable[]>(() => {
     const loggables: Loggable[] = [
+      ...eventLogs,
       ...exceptions,
-      ...focusedEventLogs,
       ...pointInstances,
       ...preFilteredMessages,
       ...sortedTerminalExpressions,
     ];
     return loggables.sort(loggableSort);
-  }, [
-    exceptions,
-    focusedEventLogs,
-    pointInstances,
-    preFilteredMessages,
-    sortedTerminalExpressions,
-  ]);
+  }, [eventLogs, exceptions, pointInstances, preFilteredMessages, sortedTerminalExpressions]);
 
   const filterByLowerCaseText = filterByText.toLocaleLowerCase();
 

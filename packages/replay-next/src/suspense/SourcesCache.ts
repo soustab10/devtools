@@ -13,7 +13,7 @@ import {
   SourceLocationRange,
 } from "shared/client/types";
 import { ProtocolError, isCommandError } from "shared/utils/error";
-import { isPointRange, toPointRange } from "shared/utils/time";
+import { toPointRange } from "shared/utils/time";
 
 import { createFetchAsyncFromFetchSuspense, createWakeable } from "../utils/suspense";
 import { createGenericCache, createUseGetValue } from "./createGenericCache";
@@ -196,28 +196,13 @@ export function getSourceHitCountsCacheKey(
 ) {
   // Focus range is tracked as TimeStampedPointRange.
   // For convenience, this public API accepts either type.
-  let pointRange: PointRange | null = focusRangeToPointRange(focusRange);
+  let pointRange: PointRange | null = focusRange ? toPointRange(focusRange) : null;
 
   let key = `${sourceId}:${locationRange.start.line}:${locationRange.start.column}:${locationRange.end.line}:${locationRange.end.column}`;
   if (pointRange !== null) {
     key = `${key}:${pointRange.begin}:${pointRange.end}`;
   }
   return key;
-}
-
-function focusRangeToPointRange(focusRange: TimeStampedPointRange | PointRange | null) {
-  let pointRange: PointRange | null = null;
-  if (focusRange !== null) {
-    if (isPointRange(focusRange)) {
-      pointRange = focusRange;
-    } else {
-      pointRange = {
-        begin: focusRange.begin.point,
-        end: focusRange.end.point,
-      };
-    }
-  }
-  return pointRange;
 }
 
 export function getSourceHitCountsSuspense(
@@ -228,7 +213,7 @@ export function getSourceHitCountsSuspense(
 ): LineNumberToHitCountMap {
   const key = getSourceHitCountsCacheKey(client, sourceId, locationRange, focusRange);
 
-  const pointRange = focusRangeToPointRange(focusRange);
+  const pointRange = focusRange ? toPointRange(focusRange) : null;
 
   let record = hitCountRecordsMap.get(key);
   if (record == null) {
