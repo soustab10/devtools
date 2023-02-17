@@ -86,7 +86,7 @@ export function LoggablesContextRoot({
     return suspendInParallel(
       ...eventTypesToLoad.map(
         eventType => () =>
-          getEventTypeEntryPointsSuspenseInfallible(client, eventType, pointRange) ?? []
+          getEventTypeEntryPointsSuspenseInfallible(eventType, pointRange, client) ?? []
       )
     ).flat();
   }, [client, eventTypesToLoad, focusRange]);

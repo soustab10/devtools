@@ -86,11 +86,10 @@ export const {
   EventLog[]
 >(
   "CommentsCache: getCommentsGraphQL",
-  1,
   async (
-    replayClient: ReplayClientInterface,
     eventType: EventHandlerType,
-    pointRange: PointRange | null
+    pointRange: PointRange | null,
+    replayClient: ReplayClientInterface
   ) => {
     const entryPoints = await replayClient.runAnalysis<EventLog>({
       effectful: false,
